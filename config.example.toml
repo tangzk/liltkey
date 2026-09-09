@@ -1,0 +1,7 @@
+# 默认模型：~/.local/share/fcitx5-voice/sensevoice
+# model_dir = "/absolute/path/to/sensevoice"
+threads = 4
+max_seconds = 30
+language = "auto"
+# 留空使用默认麦克风。用 fcitx5-voice devices 查询设备名称。
+device = ""

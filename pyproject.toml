@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fcitx5-voice"
+version = "0.1.0"
+description = "Offline SenseVoice dictation service for Fcitx5"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<3", "sherpa-onnx==1.13.7"]
+
+[project.scripts]
+fcitx5-voice = "fcitx5_voice.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

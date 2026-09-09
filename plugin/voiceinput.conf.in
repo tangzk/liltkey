@@ -1,0 +1,14 @@
+[Addon]
+Name=Offline Voice Input
+Name[zh_CN]=离线语音输入
+Comment=Local speech recognition preview for Fcitx5
+Comment[zh_CN]=Fcitx5 本地语音识别预览
+Type=SharedLibrary
+Library=@VOICEINPUT_LIBRARY@
+Category=Module
+Version=@PROJECT_VERSION@
+OnDemand=False
+Configurable=True
+
+[Addon/Dependencies]
+0=core:5.1.19
