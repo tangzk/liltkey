@@ -7,6 +7,10 @@ from .text import format_segment
 
 
 class StreamingSession(Session):
+    def __init__(self, capture_factory, recognize, emit, max_seconds=30, finalize=None):
+        super().__init__(capture_factory, recognize, emit, max_seconds)
+        self.finalize = finalize
+
     async def start(self, session_id):
         await super().start(session_id)
         if (not self.closed and self.id == session_id and self.phase == 'recording'
@@ -51,7 +55,11 @@ class StreamingSession(Session):
             for kind, text in results:
                 if kind not in {'partial', 'final'} or not isinstance(text, str):
                     raise ValueError('无效的流式识别结果')
-                text = format_segment(text, committed_tail)
+                if not self._active(session_id):
+                    return
+                if kind == 'final' and text.strip() and self.finalize is not None:
+                    text = await asyncio.to_thread(self.finalize, text)
+                text = format_segment(text, committed_tail, mixed_spacing=self.finalize is not None)
                 async with self.lock:
                     if not self._active(session_id):
                         return

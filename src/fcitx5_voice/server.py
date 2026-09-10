@@ -16,12 +16,13 @@ MAX_LINE = 65536
 
 
 class VoiceServer:
-    def __init__(self, path, capture_factory, recognize, max_seconds=30, streaming=False):
+    def __init__(self, path, capture_factory, recognize, max_seconds=30, streaming=False, finalize=None):
         self.path = Path(path)
         self.capture_factory = capture_factory
         self.recognize = recognize
         self.max_seconds = max_seconds
         self.streaming = streaming
+        self.finalize = finalize
         self.server = None
         self.lock_fd = None
         self.owner = False
@@ -89,7 +90,8 @@ class VoiceServer:
                 return
             self.owner = True
             session_class = StreamingSession if self.streaming else Session
-            session = session_class(self.capture_factory, self.recognize, emit, self.max_seconds)
+            options = {'finalize': self.finalize} if self.streaming else {}
+            session = session_class(self.capture_factory, self.recognize, emit, self.max_seconds, **options)
             await emit({'type': 'ready', 'protocol': 2 if self.streaming else 1})
             while True:
                 try:

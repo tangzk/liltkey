@@ -7,6 +7,9 @@ from dataclasses import dataclass
 class DownloadFile:
     name: str
     sha256: str
+    source: str | None = None
+    source_sha256: str | None = None
+    archive_member: str | None = None
 
 
 @dataclass(frozen=True)
@@ -15,6 +18,7 @@ class ModelManifest:
     repository: str
     revision: str
     files: tuple[DownloadFile, ...]
+    base_url: str = 'https://huggingface.co'
 
 
 STREAMING_MODEL = ModelManifest(
@@ -44,6 +48,25 @@ OFFLINE_MODEL = ModelManifest(
         DownloadFile('tokens.txt',
                      'f449eb28dc567533d7fa59be34e2abca8784f771850c78a47fb731a31429a1dc'),
     ),
+)
+
+
+PUNCTUATION_MODEL = ModelManifest(
+    directory='punct-ct-transformer-zh-en-int8',
+    repository='k2-fsa/sherpa-onnx/releases/download',
+    revision='punctuation-models',
+    files=(
+        DownloadFile(
+            'model.int8.onnx',
+            '65a3fb9f5ad7bfb96bf69e0dc4481df97f6ee60513c1d94ce981ba6effd524b1',
+            source=('sherpa-onnx-punct-ct-transformer-zh-en-'
+                    'vocab272727-2024-04-12-int8.tar.bz2'),
+            source_sha256=('c0d5aa5f8eeb686032345e180bedf39319dc2e0556781c6264bcadba8328a6e1'),
+            archive_member=('sherpa-onnx-punct-ct-transformer-zh-en-'
+                            'vocab272727-2024-04-12-int8/model.int8.onnx'),
+        ),
+    ),
+    base_url='https://github.com',
 )
 
 
