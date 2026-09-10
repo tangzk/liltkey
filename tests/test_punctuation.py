@@ -151,6 +151,8 @@ class PunctuationRestorerTests(unittest.TestCase):
             ('https://example.test/path?q=1',
              'https。: / / example . test / path ? q = 1。'),
             ('www.example.test', 'www . example . test。'),
+            ('3.14 3.14', '3.14 3. 14。'),
+            ("can't can't", "can't can 't。"),
         )
         for original, changed in cases:
             with self.subTest(original=original), tempfile.TemporaryDirectory() as directory:

@@ -24,8 +24,6 @@ def _is_ascii_word(character: str) -> bool:
 
 def _preserves_content(original: str, result: str) -> bool:
     """Allow inserted punctuation/spacing while retaining every original character."""
-    if any(match.group(0) not in result for match in _PROTECTED_ASCII.finditer(original)):
-        return False
     expected = [(index, character) for index, character in enumerate(original)
                 if not character.isspace()]
     matched = []
@@ -40,6 +38,12 @@ def _preserves_content(original: str, result: str) -> bool:
             return False
     if expected_index != len(expected):
         return False
+
+    positions = {original_index: result_index
+                 for (original_index, _), result_index in zip(expected, matched)}
+    for span in _PROTECTED_ASCII.finditer(original):
+        if result[positions[span.start()]:positions[span.end() - 1] + 1] != span.group(0):
+            return False
 
     for index in range(len(expected) - 1):
         left_position, left = expected[index]
