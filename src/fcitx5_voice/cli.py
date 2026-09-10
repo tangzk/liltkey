@@ -12,10 +12,19 @@ import sys
 import time
 import wave
 from dataclasses import replace
+from functools import partial
 from pathlib import Path
 
 from .config import config_path, load_config, socket_path
-from .text import format_segment
+from .text import finalize_text, format_segment
+
+
+def build_finalizer(config):
+    punctuate = None
+    if config.punctuation:
+        from .punctuation import PunctuationRestorer
+        punctuate = PunctuationRestorer(config)
+    return partial(finalize_text, punctuate=punctuate)
 
 
 def apply_overrides(config, backend=None, model_dir=None, streaming_model_dir=None):
@@ -45,10 +54,11 @@ async def serve(config):
     print(f'正在加载{"streaming" if streaming else "offline"}模型（不会启动麦克风）…',
           flush=True)
     recognize = await asyncio.to_thread(recognizer_type, config)
+    finalize = await asyncio.to_thread(build_finalizer, config) if streaming else None
     server = VoiceServer(socket_path(),
                          lambda: GStreamerCapture(config.device, config.max_seconds,
                                                   streaming=streaming),
-                         recognize, config.max_seconds, streaming=streaming)
+                         recognize, config.max_seconds, streaming=streaming, finalize=finalize)
     stopped = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
@@ -86,10 +96,15 @@ def doctor(config):
     for filename in filenames:
         path = model_dir / filename
         check(filename, path.is_file(), path)
+    if config.backend == 'streaming' and config.punctuation:
+        path = config.punctuation_model_dir / 'model.int8.onnx'
+        check('标点模型', path.is_file(), path)
     check('桌面运行目录', os.environ.get('XDG_RUNTIME_DIR'), os.environ.get('XDG_RUNTIME_DIR', '未设置'))
     print(f'配置文件：{config_path()}')
     print(f'后端：{config.backend}；CPU 线程：{config.threads}；语言：{config.language}；'
           f'录音上限：{config.max_seconds} 秒')
+    if config.backend == 'streaming':
+        print(f'自动标点：{"开启" if config.punctuation else "关闭"}')
     print('诊断未访问麦克风。')
     return 0 if all(checks) else 1
 
@@ -105,6 +120,7 @@ def transcribe(config, filename, repeats):
     if config.backend == 'streaming':
         from .streaming_recognizer import StreamingRecognizer
         recognize = StreamingRecognizer(config)
+        finalize = build_finalizer(config)
     else:
         from .recognizer import SenseVoiceRecognizer
         recognize = SenseVoiceRecognizer(config)
@@ -119,7 +135,9 @@ def transcribe(config, filename, repeats):
             def apply(events):
                 nonlocal current, committed_tail
                 for kind, value in events:
-                    value = format_segment(value, committed_tail)
+                    if kind == 'final':
+                        value = finalize(value)
+                    value = format_segment(value, committed_tail, mixed_spacing=True)
                     if kind == 'final':
                         final.append(value)
                         current = ''

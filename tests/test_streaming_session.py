@@ -171,3 +171,47 @@ class StreamingSessionTests(unittest.IsolatedAsyncioTestCase):
                 await asyncio.sleep(0.001)
         self.assertEqual([e['text'] for e in self.events[1:]],
                          ['Hello world', ' how are', ' how are you?', ' Fine', '中文'])
+
+    async def test_finalize_only_changes_finals_including_stop_tail(self):
+        seen = []
+
+        def finalize(text):
+            seen.append(text)
+            return text.replace('。', '！')
+
+        self.session.finalize = finalize
+        await self.session.start('a')
+        await self.capture.queue.put(b'first')
+        await self.wait_for('partial')
+        self.assertEqual(seen, [])
+        self.assertEqual(self.events[-1]['text'], '明天上午')
+        await self.capture.queue.put(b'second')
+        await self.wait_for('final')
+        self.assertEqual(self.events[-1]['text'], '明天下午！')
+        await self.session.stop('a')
+        await self.wait_for('finished')
+        self.assertEqual(seen, ['明天下午。', '三点开会。'])
+        self.assertEqual([e['text'] for e in self.events if e['type'] == 'final'],
+                         ['明天下午！', '三点开会！'])
+
+    async def test_cancel_during_final_processing_drops_result_without_blocking_loop(self):
+        entered, release = threading.Event(), threading.Event()
+
+        def delayed(text):
+            entered.set()
+            release.wait(2)
+            return text + '！'
+
+        self.session.finalize = delayed
+        await self.session.start('a')
+        await self.capture.queue.put(b'second')
+        try:
+            async with asyncio.timeout(1):
+                while not entered.is_set():
+                    await asyncio.sleep(0.001)
+            await asyncio.wait_for(self.session.cancel('a'), 0.2)
+            self.assertFalse(self.capture.active)
+        finally:
+            release.set()
+        await self.session.close()
+        self.assertEqual([e['type'] for e in self.events], ['recording', 'cancelled'])

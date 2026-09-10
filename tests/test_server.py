@@ -77,6 +77,24 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.read(reader), {'type': 'finished', 'id': 'live'})
         self.assertFalse(self.capture.active)
 
+    async def test_socket_final_processing_keeps_partial_raw_and_restores_stop_punctuation(self):
+        from test_streaming_session import StreamCapture, Recognizer
+        from fcitx5_voice.text import finalize_text
+        await self.server.close()
+        self.capture = StreamCapture()
+        self.server = VoiceServer(self.path, lambda: self.capture, Recognizer(), streaming=True,
+                                 finalize=lambda text: finalize_text(text, lambda value: value.replace('。', '？')))
+        await self.server.start()
+        reader, writer, _ = await self.connect()
+        await self.send(writer, {'type': 'start', 'id': 'punct'})
+        await self.read(reader)
+        await self.capture.queue.put(b'first')
+        self.assertEqual((await self.read(reader))['text'], '明天上午')
+        await self.send(writer, {'type': 'stop', 'id': 'punct'})
+        self.assertEqual((await self.read(reader))['type'], 'transcribing')
+        self.assertEqual((await self.read(reader))['text'], '三点开会？')
+        self.assertEqual((await self.read(reader))['type'], 'finished')
+
     async def test_invalid_frames_do_not_start_microphone(self):
         reader, writer, _ = await self.connect()
         for line in [b'not-json\n', b'[]\n', b'{"type":"unknown","id":"a"}\n',

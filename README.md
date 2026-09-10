@@ -14,6 +14,8 @@ Fcitx5 原生模块 + 独立本地识别服务。默认使用中英双语流式 
 
 每次录音最多 30 秒，期间可提交多句话。正在识别的文字属于预编辑，可能随上下文修正；停顿后正式提交，录音继续。再次按快捷键会结束录音、处理剩余音频并提交尾句，无须按 Enter。Esc 只放弃当前未提交部分，已提交句子保留。
 
+流式模式默认在定稿前使用本地中英标点模型恢复逗号、句号、问号，并整理空格。临时文字持续显示，标点在分句定稿时出现；中文词间不加空格，中英相邻按“使用 Linux 系统”处理，英文保留词间空格。模型根据当前分句文字预测标点，可能判断不准；不会回改已提交正文。标点推理异常时保留原始文字并继续听写。
+
 改用普通键盘输入、切换窗口或输入框、客户端重置输入状态时会取消本次会话。已有拼音预编辑时先完成或取消拼音；密码和标记为敏感的输入框禁用语音。快捷键通过 Fcitx5 附加组件配置修改。
 
 输入框必须正常接入 Fcitx5。支持客户端预编辑的应用在光标处显示下划线文字；不支持时退回输入法面板预编辑。鼠标在同一输入框移动光标时，能否及时取消取决于应用是否发送 reset 等输入法事件，不能保证任意应用的光标锁定。语音模式下 Enter 属于普通键盘输入，不会代替停止快捷键。
@@ -56,7 +58,7 @@ systemctl --user enable --now fcitx5-voice
 
 ```bash
 python3 scripts/build-deb.py
-sudo apt install ./dist/fcitx5-voice_0.2.0_amd64.deb
+sudo apt install ./dist/fcitx5-voice_0.3.0_amd64.deb
 fcitx5-voice-setup
 fcitx5-voice-download-model
 systemctl --user daemon-reload
@@ -71,6 +73,7 @@ systemctl --user enable --now fcitx5-voice
 
 ```toml
 backend = "streaming"
+punctuation = true
 threads = 4
 max_seconds = 30
 language = "auto"
@@ -79,6 +82,8 @@ device = ""
 
 - `device` 为空时使用系统默认麦克风。运行 `fcitx5-voice devices` 查询音频设备；`pactl list short sources` 的 source 名称可用于 `device`。系统使用 PipeWire 时通过 PulseAudio 兼容服务采集。
 - `backend` 可选 `streaming`（默认，边说边显示并自动提交）或 `offline`（SenseVoice，结束录音后 Enter 提交）。
+- `punctuation` 默认为 `true`，仅用于流式模式。设为 `false` 可关闭标点模型，空格规范化仍启用；离线 SenseVoice 保持原行为。
+- `punctuation_model_dir` 指定标点模型目录，默认 `~/.local/share/fcitx5-voice/punct-ct-transformer-zh-en-int8`，遵守 `XDG_DATA_HOME`。
 - `streaming_model_dir` 指定流式模型目录，默认 `~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20`。`model_dir` 仅用于离线模式，默认 `~/.local/share/fcitx5-voice/sensevoice`。两个目录均遵守 `XDG_DATA_HOME`。
 - 流式模型自动识别中文和英文混输，要求 `language = "auto"`，不能强制单一语言。离线 SenseVoice 支持 `auto/zh/en/ja/ko/yue`。
 - `doctor` 只检查依赖、模型存在性和配置，不采集麦克风，不代表桌面兼容性测试通过。
@@ -97,6 +102,8 @@ systemctl --user restart fcitx5-voice
 ```
 
 然后从托盘菜单重启 Fcitx5。服务与插件要一起更新：旧插件不支持流式协议。需要保留原来的手动预览体验时，在配置中设置 `backend = "offline"`，并执行 `python3 scripts/download-model.py --backend offline`。
+
+从 0.2.0 流式版升级时，默认下载命令会同时检查语音和标点模型。只补下标点模型可运行 `python3 scripts/download-model.py --punctuation-only`。明确关闭标点时可用 `--no-punctuation` 跳过标点模型下载；同时须在服务配置中设置 `punctuation = false`。
 
 ## 验证
 
@@ -127,6 +134,7 @@ systemctl --user daemon-reload
 - [Fcitx5](https://github.com/fcitx/fcitx5)
 - [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx)
 - [流式 Zipformer 中英模型](https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20)
+- [CT-Transformer 中英标点模型](https://k2-fsa.github.io/sherpa/onnx/punctuation/pretrained_models.html)
 - [SenseVoice 模型](https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17)
 
 预训练模型使用其自身许可证，和本项目源码分开管理。

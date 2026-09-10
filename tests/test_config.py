@@ -67,3 +67,12 @@ class ConfigTests(unittest.TestCase):
     def test_missing_explicit_config_is_actionable_error(self):
         with self.assertRaises(FileNotFoundError):
             load_config(Path('/no-such-fcitx5-voice-config'))
+
+    def test_punctuation_can_be_disabled_and_model_path_resolves(self):
+        config = self.load('punctuation=false\npunctuation_model_dir="punct"')
+        self.assertFalse(config.punctuation)
+        self.assertTrue(config.punctuation_model_dir.is_absolute())
+        self.assertEqual(config.punctuation_model_dir.name, 'punct')
+        for value in ['"false"', '1', '[]']:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.load(f'punctuation={value}')

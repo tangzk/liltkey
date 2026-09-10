@@ -189,6 +189,6 @@ class StreamingRecognizerTests(unittest.TestCase):
             output = io.StringIO()
             with patch('fcitx5_voice.streaming_recognizer.StreamingRecognizer', Recognizer), \
                     contextlib.redirect_stdout(output):
-                self.assertEqual(transcribe(Config(), wav_path, 1), 0)
+                self.assertEqual(transcribe(Config(punctuation=False), wav_path, 1), 0)
 
-        self.assertEqual(json.loads(output.getvalue())['text'], 'hello world中文继续')
+        self.assertEqual(json.loads(output.getvalue())['text'], 'hello world 中文继续')

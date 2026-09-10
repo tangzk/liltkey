@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fcitx5-voice"
-version = "0.2.0"
+version = "0.3.0"
 description = "Local streaming voice dictation service for Fcitx5"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26,<3", "sherpa-onnx==1.13.7"]

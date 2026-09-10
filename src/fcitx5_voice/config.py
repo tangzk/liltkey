@@ -27,6 +27,8 @@ class Config:
     model_dir: Path = field(default_factory=lambda: data_dir() / 'sensevoice')
     streaming_model_dir: Path = field(default_factory=lambda: data_dir() /
                                       'streaming-zipformer-bilingual-zh-en-2023-02-20')
+    punctuation: bool = True
+    punctuation_model_dir: Path = field(default_factory=lambda: data_dir() / 'punct-ct-transformer-zh-en-int8')
     threads: int = 4
     max_seconds: int = 30
     device: str = ''
@@ -49,7 +51,9 @@ def load_config(path=None, backend=None):
         value = data.get(key, getattr(Config(), key))
         if type(value) is not int or not minimum <= value <= maximum:
             raise ValueError(f'{key} 必须是 {minimum}～{maximum} 之间的整数')
-    for key in ['backend', 'model_dir', 'streaming_model_dir', 'device', 'language']:
+    if type(data.get('punctuation', True)) is not bool:
+        raise ValueError('punctuation 必须是 true/false')
+    for key in ['backend', 'model_dir', 'streaming_model_dir', 'punctuation_model_dir', 'device', 'language']:
         if key in data and not isinstance(data[key], str):
             raise ValueError(f'{key} 必须是字符串')
     if data.get('backend', 'streaming') not in {'streaming', 'offline'}:
@@ -60,7 +64,7 @@ def load_config(path=None, backend=None):
         raise ValueError('streaming 双语模型自动识别中英文，language 必须是 auto')
     if any(ord(c) < 32 for c in data.get('device', '')):
         raise ValueError('device 不能包含控制字符')
-    for key in ('model_dir', 'streaming_model_dir'):
+    for key in ('model_dir', 'streaming_model_dir', 'punctuation_model_dir'):
         if key in data:
             data[key] = Path(data[key]).expanduser()
             if not data[key].is_absolute():

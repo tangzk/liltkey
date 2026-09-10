@@ -1,5 +1,8 @@
 # 默认使用流式中英双语模型；offline 保留 SenseVoice 兼容模式。
 backend = "streaming"
+# 流式定稿自动补标点；false 仅关闭标点模型，空格规范化仍启用。
+punctuation = true
+# punctuation_model_dir = "/absolute/path/to/punct-ct-transformer-zh-en-int8"
 # 流式模型：~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20
 # streaming_model_dir = "/absolute/path/to/streaming-zipformer-bilingual-zh-en-2023-02-20"
 # SenseVoice 模型：~/.local/share/fcitx5-voice/sensevoice
