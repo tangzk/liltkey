@@ -36,7 +36,9 @@ public:
     std::uintptr_t context() const { return context_; }
     const std::string &id() const { return id_; }
     const std::string &preview() const { return preview_; }
+    bool streaming() const { return streaming_; }
     bool activeFor(std::uintptr_t context) const;
+    std::optional<std::string> takeCommit();
     std::optional<std::string> takeError();
 
 private:
@@ -47,6 +49,10 @@ private:
     std::uintptr_t context_ = 0;
     std::string id_;
     std::string preview_;
+    bool streaming_ = false;
+    std::int64_t expectedSegment_ = 1;
+    std::int64_t lastSequence_ = 0;
+    std::optional<std::string> pendingCommit_;
     std::optional<std::string> error_;
 };
 

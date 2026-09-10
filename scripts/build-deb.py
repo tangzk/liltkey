@@ -20,7 +20,7 @@ def main():
     architecture = subprocess.check_output(['dpkg', '--print-architecture'], text=True).strip()
     multiarch = subprocess.check_output(['dpkg-architecture', '-qDEB_HOST_MULTIARCH'], text=True).strip()
     args.output.mkdir(parents=True, exist_ok=True)
-    output = (args.output / f'fcitx5-voice_0.1.0_{architecture}.deb').resolve()
+    output = (args.output / f'fcitx5-voice_0.2.0_{architecture}.deb').resolve()
     with tempfile.TemporaryDirectory(prefix='fcitx5-voice-deb-') as temporary:
         stage = Path(temporary)
 
@@ -37,7 +37,7 @@ def main():
 
         copy(args.plugin, f'usr/lib/{multiarch}/fcitx5/voiceinput.so')
         addon = ((ROOT / 'plugin/voiceinput.conf.in').read_text()
-                 .replace('@PROJECT_VERSION@', '0.1.0').replace('@VOICEINPUT_LIBRARY@', 'voiceinput'))
+                 .replace('@PROJECT_VERSION@', '0.2.0').replace('@VOICEINPUT_LIBRARY@', 'voiceinput'))
         write('usr/share/fcitx5/addon/voiceinput.conf', addon)
         package_root = stage / 'usr/share/fcitx5-voice'
         for directory in ['src', 'scripts']:
@@ -57,7 +57,7 @@ def main():
               '  echo "请先运行 fcitx5-voice-setup 和 fcitx5-voice-download-model" >&2\n'
               '  exit 1\nfi\n'
               'exec env PYTHONPATH=/usr/share/fcitx5-voice/src "$runtime" -m fcitx5_voice "$@"\n', 0o755)
-        write('DEBIAN/control', 'Package: fcitx5-voice\nVersion: 0.1.0\nSection: utils\nPriority: optional\n'
+        write('DEBIAN/control', 'Package: fcitx5-voice\nVersion: 0.2.0\nSection: utils\nPriority: optional\n'
               f'Architecture: {architecture}\nMaintainer: Fcitx5 Voice contributors\n'
               'Depends: fcitx5 (>= 5.1.19), libfcitx5core7, libfcitx5config6, libfcitx5utils2, '
               'libjson-c5, libc6 (>= 2.38), libstdc++6 (>= 13), python3 (>= 3.11), python3-venv, '

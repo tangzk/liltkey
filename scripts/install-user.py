@@ -91,7 +91,7 @@ def main():
         shutil.copy2(args.plugin, plugin)
         files.append(str(plugin))
         addon = (ROOT / 'plugin/voiceinput.conf.in').read_text()
-        addon = addon.replace('@PROJECT_VERSION@', '0.1.0')
+        addon = addon.replace('@PROJECT_VERSION@', '0.2.0')
         addon = '\n'.join('Library=' + str(plugin.with_suffix('')) if line.startswith('Library=') else line
                           for line in addon.splitlines()) + '\n'
         write(data / 'fcitx5/addon/voiceinput.conf', addon)
@@ -100,7 +100,7 @@ def main():
           + shlex.quote(str(python)) + ' -m fcitx5_voice "$@"\n', 0o755)
     exec_path = json.dumps(str(wrapper), ensure_ascii=False).replace('%', '%%').replace('$', '$$')
     write(config / 'systemd/user/fcitx5-voice.service',
-          '[Unit]\nDescription=Fcitx5 offline voice recognition\nAfter=graphical-session.target\n'
+          '[Unit]\nDescription=Fcitx5 local voice recognition\nAfter=graphical-session.target\n'
           'PartOf=graphical-session.target\n\n[Service]\nType=simple\n'
           f'ExecStart={exec_path} serve\nRestart=on-failure\nRestartSec=3\n'
           'TimeoutStopSec=10\nUMask=0077\n\n[Install]\nWantedBy=default.target\n')
@@ -120,7 +120,7 @@ def main():
                                   ensure_ascii=False, indent=2))
     print(f'已安装：{wrapper}')
     print('下载模型后运行：systemctl --user daemon-reload && systemctl --user enable --now fcitx5-voice')
-    print('重启 Fcitx5 后，在文本输入框按 Ctrl+Alt+V 开始／结束，Enter 提交，Esc 取消。')
+    print('重启 Fcitx5 后，在文本输入框按 Ctrl+Alt+V 开始／结束；流式模式自动分句提交，Esc 放弃未提交部分。')
 
 
 if __name__ == '__main__':

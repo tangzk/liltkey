@@ -1,7 +1,13 @@
-# 默认模型：~/.local/share/fcitx5-voice/sensevoice
+# 默认使用流式中英双语模型；offline 保留 SenseVoice 兼容模式。
+backend = "streaming"
+# 流式模型：~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20
+# streaming_model_dir = "/absolute/path/to/streaming-zipformer-bilingual-zh-en-2023-02-20"
+# SenseVoice 模型：~/.local/share/fcitx5-voice/sensevoice
 # model_dir = "/absolute/path/to/sensevoice"
 threads = 4
 max_seconds = 30
 language = "auto"
+# streaming 双语模型会自动识别中英文，因此必须使用 auto。
+# offline 兼容模式还支持 zh/en/ja/ko/yue。
 # 留空使用默认麦克风。用 fcitx5-voice devices 查询设备名称。
 device = ""

@@ -56,6 +56,27 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(greeting['type'], 'busy')
         self.assertEqual(await reader.read(), b'')
 
+    async def test_streaming_socket_delivers_partial_before_stop_and_final_before_finished(self):
+        from test_streaming_session import StreamCapture, Recognizer
+        await self.server.close()
+        self.capture = StreamCapture()
+        self.server = VoiceServer(self.path, lambda: self.capture, Recognizer(), streaming=True)
+        await self.server.start()
+        reader, writer, greeting = await self.connect()
+        self.assertEqual(greeting, {'type': 'ready', 'protocol': 2})
+        await self.send(writer, {'type': 'start', 'id': 'live'})
+        self.assertEqual((await self.read(reader))['type'], 'recording')
+        await self.capture.queue.put(b'first')
+        self.assertEqual(await self.read(reader), {
+            'type': 'partial', 'id': 'live', 'segment': 1, 'seq': 1, 'text': '明天上午'})
+        self.assertTrue(self.capture.active)
+        await self.send(writer, {'type': 'stop', 'id': 'live'})
+        self.assertEqual((await self.read(reader))['type'], 'transcribing')
+        self.assertEqual(await self.read(reader), {
+            'type': 'final', 'id': 'live', 'segment': 1, 'seq': 2, 'text': '三点开会。'})
+        self.assertEqual(await self.read(reader), {'type': 'finished', 'id': 'live'})
+        self.assertFalse(self.capture.active)
+
     async def test_invalid_frames_do_not_start_microphone(self):
         reader, writer, _ = await self.connect()
         for line in [b'not-json\n', b'[]\n', b'{"type":"unknown","id":"a"}\n',
