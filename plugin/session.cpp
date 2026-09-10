@@ -47,11 +47,14 @@ std::optional<std::string_view> stringField(json_object *object,
                             json_object_get_string_len(value));
 }
 
-bool protocolIsOne(json_object *object) {
+std::optional<std::int64_t> integerField(json_object *object,
+                                         const char *name) {
     json_object *value = nullptr;
-    return json_object_object_get_ex(object, "protocol", &value) &&
-           json_object_get_type(value) == json_type_int &&
-           json_object_get_int64(value) == 1;
+    if (!json_object_object_get_ex(object, name, &value) ||
+        json_object_get_type(value) != json_type_int) {
+        return std::nullopt;
+    }
+    return json_object_get_int64(value);
 }
 
 bool hasControlCharacters(std::string_view text) {
@@ -127,6 +130,10 @@ bool Session::begin(std::string id, std::uintptr_t context) {
     id_ = std::move(id);
     context_ = context;
     preview_.clear();
+    streaming_ = false;
+    expectedSegment_ = 1;
+    lastSequence_ = 0;
+    pendingCommit_.reset();
     error_.reset();
     phase_ = Phase::Connecting;
     return true;
@@ -155,7 +162,10 @@ std::optional<std::string> Session::handleLine(std::string_view line) {
     }
 
     if (*type == "ready") {
-        if (phase_ == Phase::Connecting && protocolIsOne(object.get())) {
+        const auto protocol = integerField(object.get(), "protocol");
+        if (phase_ == Phase::Connecting && protocol &&
+            (*protocol == 1 || *protocol == 2)) {
+            streaming_ = *protocol == 2;
             phase_ = Phase::Starting;
             return request("start");
         }
@@ -198,13 +208,38 @@ std::optional<std::string> Session::handleLine(std::string_view line) {
     } else if (*type == "transcribing" &&
                (phase_ == Phase::Recording || phase_ == Phase::Stopping)) {
         phase_ = Phase::Transcribing;
-    } else if (*type == "result" && phase_ == Phase::Transcribing) {
+    } else if (*type == "result" && !streaming_ &&
+               phase_ == Phase::Transcribing) {
         const auto text = stringField(object.get(), "text");
         if (text && !text->empty() && text->size() <= MaxResultBytes &&
             validUtf8(*text) && !hasControlCharacters(*text)) {
             preview_.assign(*text);
             phase_ = Phase::Preview;
         }
+    } else if ((*type == "partial" || *type == "final") && streaming_ &&
+               (phase_ == Phase::Recording || phase_ == Phase::Stopping ||
+                phase_ == Phase::Transcribing)) {
+        const auto segment = integerField(object.get(), "segment");
+        const auto sequence = integerField(object.get(), "seq");
+        const auto text = stringField(object.get(), "text");
+        if (!segment || !sequence || !text ||
+            *segment != expectedSegment_ || *sequence <= 0 ||
+            *sequence <= lastSequence_ || text->size() > MaxResultBytes ||
+            !validUtf8(*text) || hasControlCharacters(*text)) {
+            return std::nullopt;
+        }
+        lastSequence_ = *sequence;
+        if (*type == "partial") {
+            preview_.assign(*text);
+        } else {
+            pendingCommit_ = std::string(*text);
+            preview_.clear();
+            ++expectedSegment_;
+        }
+    } else if (*type == "finished" && streaming_ &&
+               (phase_ == Phase::Recording || phase_ == Phase::Stopping ||
+                phase_ == Phase::Transcribing)) {
+        reset();
     } else if (*type == "cancelled" && phase_ != Phase::Preview) {
         reset();
     } else if (*type == "error" && phase_ != Phase::Preview) {
@@ -278,11 +313,19 @@ std::optional<std::string> Session::takeError() {
     return std::exchange(error_, std::nullopt);
 }
 
+std::optional<std::string> Session::takeCommit() {
+    return std::exchange(pendingCommit_, std::nullopt);
+}
+
 void Session::reset() {
     phase_ = Phase::Idle;
     context_ = 0;
     id_.clear();
     preview_.clear();
+    streaming_ = false;
+    expectedSegment_ = 1;
+    lastSequence_ = 0;
+    pendingCommit_.reset();
 }
 
 } // namespace voiceinput

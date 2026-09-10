@@ -1,6 +1,6 @@
 # Fcitx5 本地语音输入
 
-Fcitx5 原生模块 + 独立 SenseVoice 识别服务。保留现有拼音输入，语音识别在本机 CPU 执行。首版支持中文及模型原生支持的中英等语言；不上传录音、不保存语音或识别文本日志。
+Fcitx5 原生模块 + 独立本地识别服务。默认使用中英双语流式 Zipformer：边说边在光标处显示文字，停顿分句后自动写入输入框。保留现有拼音输入及 SenseVoice 离线预览模式；识别在本机 CPU 执行，不上传录音，不保存语音或识别文本日志。
 
 ## 使用
 
@@ -9,13 +9,14 @@ Fcitx5 原生模块 + 独立 SenseVoice 识别服务。保留现有拼音输入�
 | 操作 | 按键 |
 |---|---|
 | 开始录音／结束录音 | `Ctrl+Alt+V` |
-| 提交预览文字 | `Enter` |
-| 删除预览末尾一个字符 | `Backspace` |
-| 取消录音／放弃预览 | `Esc` |
+| 放弃当前未提交文字并停止 | `Esc` |
+| 离线模式提交／删除预览末字 | `Enter` / `Backspace` |
 
-录音最多 30 秒。改用普通键盘输入、切换窗口或输入框会取消本次会话，不会把结果写入另一个窗口。已有拼音预编辑时先完成或取消拼音；密码和标记为敏感的输入框禁用语音。快捷键通过 Fcitx5 附加组件配置修改。
+每次录音最多 30 秒，期间可提交多句话。正在识别的文字属于预编辑，可能随上下文修正；停顿后正式提交，录音继续。再次按快捷键会结束录音、处理剩余音频并提交尾句，无须按 Enter。Esc 只放弃当前未提交部分，已提交句子保留。
 
-首版是按键结束的短句识别，不是边说边逐字显示。预览支持末尾删除；其他修改可在提交后使用应用的编辑功能。输入框必须正常接入 Fcitx5；这不是绕过 Wayland 限制的任意全局按键注入工具。
+改用普通键盘输入、切换窗口或输入框、客户端重置输入状态时会取消本次会话。已有拼音预编辑时先完成或取消拼音；密码和标记为敏感的输入框禁用语音。快捷键通过 Fcitx5 附加组件配置修改。
+
+输入框必须正常接入 Fcitx5。支持客户端预编辑的应用在光标处显示下划线文字；不支持时退回输入法面板预编辑。鼠标在同一输入框移动光标时，能否及时取消取决于应用是否发送 reset 等输入法事件，不能保证任意应用的光标锁定。语音模式下 Enter 属于普通键盘输入，不会代替停止快捷键。
 
 ## 从源码安装（推荐）
 
@@ -47,7 +48,7 @@ systemctl --user enable --now fcitx5-voice
 
 之后使用 Fcitx5 托盘菜单重启 Fcitx5，或运行 `fcitx5 -rd`。重启前结束正在编辑的拼音预编辑。
 
-用户级安装不会更换默认输入法或改写现有拼音配置。模型固定到上游 revision，并验证 SHA256，下载失败不会替换已可用模型。默认量化模型约 239 MB，另外需要 Python 运行依赖。
+用户级安装不会更换默认输入法或改写现有拼音配置。模型固定到上游 revision，并验证 SHA256，下载失败不会替换已可用模型。默认下载流式中英模型，另外需要 Python 运行依赖。SenseVoice 仅在选择离线模式时需要。
 
 ## Debian 安装包
 
@@ -55,7 +56,7 @@ systemctl --user enable --now fcitx5-voice
 
 ```bash
 python3 scripts/build-deb.py
-sudo apt install ./dist/fcitx5-voice_0.1.0_amd64.deb
+sudo apt install ./dist/fcitx5-voice_0.2.0_amd64.deb
 fcitx5-voice-setup
 fcitx5-voice-download-model
 systemctl --user daemon-reload
@@ -69,6 +70,7 @@ systemctl --user enable --now fcitx5-voice
 服务配置：`~/.config/fcitx5-voice/config.toml`，遵守 `XDG_CONFIG_HOME`。参见 [config.example.toml](config.example.toml)。修改后执行 `systemctl --user restart fcitx5-voice`。
 
 ```toml
+backend = "streaming"
 threads = 4
 max_seconds = 30
 language = "auto"
@@ -76,11 +78,25 @@ device = ""
 ```
 
 - `device` 为空时使用系统默认麦克风。运行 `fcitx5-voice devices` 查询音频设备；`pactl list short sources` 的 source 名称可用于 `device`。系统使用 PipeWire 时通过 PulseAudio 兼容服务采集。
-- `model_dir` 可指定模型绝对路径；默认 `~/.local/share/fcitx5-voice/sensevoice`，遵守 `XDG_DATA_HOME`。
-- `language` 可选 `auto/zh/en/ja/ko/yue`；中英混输建议 `auto`。
+- `backend` 可选 `streaming`（默认，边说边显示并自动提交）或 `offline`（SenseVoice，结束录音后 Enter 提交）。
+- `streaming_model_dir` 指定流式模型目录，默认 `~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20`。`model_dir` 仅用于离线模式，默认 `~/.local/share/fcitx5-voice/sensevoice`。两个目录均遵守 `XDG_DATA_HOME`。
+- 流式模型自动识别中文和英文混输，要求 `language = "auto"`，不能强制单一语言。离线 SenseVoice 支持 `auto/zh/en/ja/ko/yue`。
 - `doctor` 只检查依赖、模型存在性和配置，不采集麦克风，不代表桌面兼容性测试通过。
 - `systemctl --user status fcitx5-voice` 查看服务；`journalctl --user -u fcitx5-voice -n 30` 查看启动错误。
 - 插件报服务不可用时，先确认模型下载完成、服务已就绪；模型加载期间稍后再按快捷键。
+
+## 从离线版升级
+
+重新编译插件并运行安装脚本，下载新的流式模型后重启服务和 Fcitx5。安装脚本保留个人配置；旧配置没有 `backend` 时默认使用流式模式，原有 SenseVoice 文件不会被删除。若旧配置指定了非 `auto` 语言，请先选择离线模式，或将流式模式的语言改为 `auto`。
+
+```bash
+python3 scripts/download-model.py --backend streaming
+python3 scripts/install-user.py
+systemctl --user daemon-reload
+systemctl --user restart fcitx5-voice
+```
+
+然后从托盘菜单重启 Fcitx5。服务与插件要一起更新：旧插件不支持流式协议。需要保留原来的手动预览体验时，在配置中设置 `backend = "offline"`，并执行 `python3 scripts/download-model.py --backend offline`。
 
 ## 验证
 
@@ -89,12 +105,12 @@ uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python -e .
 PYTHONPATH=src .venv/bin/python -m unittest discover -s tests -v
 ctest --test-dir build --output-on-failure
-.venv/bin/fcitx5-voice --model-dir models/sensevoice transcribe /path/to/16k-mono-pcm16.wav --repeat 3
+.venv/bin/fcitx5-voice transcribe /path/to/16k-mono-pcm16.wav --repeat 3
 ```
 
 Python 测试使用合成音频和内存捕获器，不访问真实麦克风。C++ 测试覆盖协议、状态、UTF-8 编辑以及隔离的 Fcitx5 输入上下文。详见 [验证记录](docs/validation.md)。
 
-识别质量尚未以用户真实口述数据集验收；速度快不等于准确率达标。首版未实现神经网络 VAD、降噪、个人热词、连续听写、云端后端或自动润色。服务已有模型适配边界，可以在同一组录音上比较候选模型再替换。
+识别质量尚未以用户真实口述数据集验收。流式模式使用模型端点检测分句，不包含降噪、个人热词、云端后端或自动润色，也不会用离线模型改写已经提交的正文。单次录音仍限制为 30 秒。
 
 ## 卸载
 
@@ -110,6 +126,7 @@ systemctl --user daemon-reload
 
 - [Fcitx5](https://github.com/fcitx/fcitx5)
 - [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx)
+- [流式 Zipformer 中英模型](https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20)
 - [SenseVoice 模型](https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17)
 
 预训练模型使用其自身许可证，和本项目源码分开管理。

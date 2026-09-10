@@ -1,5 +1,28 @@
 # 本机验证记录
 
+## 2026-09-10：0.2.0 流式输入
+
+本次沿用下述本机环境，使用 sherpa-onnx 1.13.7、CPU 4 线程。未访问用户麦克风，也未修改正在运行的用户服务或重启桌面输入法。
+
+流式模型为 `csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20`，固定 revision `98590b7ed6443e77b714204da2757d75e1a642f4`。四个文件约 190 MiB，SHA256 均已通过校验；具体摘要在 `src/fcitx5_voice/model_manifest.py`。流式模型自动识别中英文，配置要求 `language="auto"`。
+
+| 检查 | 本次结果 |
+|---|---|
+| Python 自动测试 | 58 项通过，包括流式会话、GStreamer、真实 Socket、下载校验和离线兼容 |
+| C++ Release 构建及 CTest | 构建成功，4/4 通过；包含两套隔离的真实 Fcitx5 上下文测试 |
+| 公开中英样本 `test_wavs/0.wav`，10.053 秒 | 模型加载 0.620～0.681 秒；完整解码 0.253～0.270 秒；产生 17 次 partial、1 次端点 final 和 1 次停止尾句 final |
+| 公开中文样本通过实际模型与 Unix Socket 实时回放 | 5.592 秒样本 + 2 秒静音 + 同样样本，合计 13.184 秒；14 次 partial、2 次 final，无重复分句提交 |
+| 上述实时回放首个 partial | 开始回放后 1.620 秒，包含样本前导静音与模型音频上下文等待 |
+| 上述回放 stop 到 finished | 0.025 秒；首句在停止前已经 final，末句在停止后排空完成 |
+
+中文样本 SHA256 为 `b77f1794fe374a0ba1ee1dc458bfaf9349496cbbfc32780c50ba3c5a7ad8e373`，两次均识别为“开放时间早上九点至下午五点”。该样本来自下文 SenseVoice 上游的公开 `test_wavs/zh.wav`。中英样本 SHA256 为 `7d93384ca14702cc584a7a33fe2fed92e89e708549161cb12ea38c916882103b`，输出为 `昨天是 MONDAY` 和 `TODAY IS LIBR THE DAY AFTER TOMORROW是星期三`，其中存在明显的英文识别错误。两个样本不能代表用户口述准确率；本次没有声称 CER 或 P95 达标。
+
+新增验证覆盖：录音中预编辑完整替换；无客户端 Preedit 能力时回退面板；分句定稿清空预编辑后提交；空 final；过期 id/segment/seq 和重复 final 抑制；停止排空；取消与断线释放采集并抑制迟到结果；队列溢出和自然 EOF 报错；英文分句词边界；UI 回调与 commit 回调内 reset 时不继续访问过期上下文。离线 protocol 1、Enter 预览提交与原有测试继续保留。
+
+桌面验收仍需使用真实应用和麦克风：浏览器、终端、编辑器的 preedit 显示与同一输入框内鼠标移动行为依赖客户端协议。当前验证证明了本地流式识别、服务协议与真实 Fcitx5 上下文分层联通，不等于所有桌面应用均已完成实机口述验收。
+
+## 2026-09-09：0.1.0 离线基线
+
 日期：2026-09-09。环境：Ubuntu 26.04、GNOME Wayland、Fcitx5 5.1.19；Intel Core i7-14700K、约 64 GB 内存。Python 3.11.15、sherpa-onnx 1.13.7，CPU 4 线程。
 
 ## 真实模型与音频

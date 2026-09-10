@@ -10,6 +10,7 @@
 #include <fcitx-utils/handlertable.h>
 #include <fcitx-utils/key.h>
 #include <fcitx-utils/keysym.h>
+#include <fcitx-utils/textformatflags.h>
 #include <fcitx/addonfactory.h>
 #include <fcitx/addoninstance.h>
 #include <fcitx/addonmanager.h>
@@ -164,8 +165,9 @@ private:
             // input-context pointer must be dropped on both paths.
             if (session_.phase() == Phase::Idle) {
                 closeTransport();
-                auto *context = std::exchange(boundContext_, nullptr);
+                auto *context = boundContext_;
                 clearUi(context);
+                boundContext_ = nullptr;
             }
             updateUi(boundContext_);
             return;
@@ -187,8 +189,11 @@ private:
                 } else {
                     session_.cancel(id);
                 }
-                boundContext_ = nullptr;
+                if (boundContext_ != context) {
+                    return;
+                }
                 clearUi(context);
+                boundContext_ = nullptr;
                 return;
             }
             if (keyEvent.key().check(FcitxKey_BackSpace)) {
@@ -350,11 +355,35 @@ private:
 
     void handleLine(const std::string &line) {
         auto *context = boundContext_;
+        if (!context || !session_.activeFor(contextId(context)) ||
+            !context->hasFocus()) {
+            cancelFor(context, false);
+            return;
+        }
+        const auto id = contextId(context);
         const Phase before = session_.phase();
         if (auto request = session_.handleLine(line)) {
             queue(*request);
-            if (!boundContext_) {
+            if (boundContext_ != context) {
                 return;
+            }
+        }
+        if (auto commit = session_.takeCommit()) {
+            if (!session_.activeFor(id) || boundContext_ != context ||
+                !context->hasFocus()) {
+                cancelFor(context, false);
+                return;
+            }
+            clearUi(context);
+            if (boundContext_ != context || !session_.activeFor(id) ||
+                !context->hasFocus()) {
+                return;
+            }
+            if (!commit->empty()) {
+                context->commitString(*commit);
+                if (boundContext_ != context || !session_.activeFor(id)) {
+                    return;
+                }
             }
         }
         if ((session_.phase() == Phase::Recording ||
@@ -369,12 +398,12 @@ private:
         }
         if (before != Phase::Idle && session_.phase() == Phase::Idle) {
             closeTransport();
-            boundContext_ = nullptr;
             if (auto error = session_.takeError()) {
                 showStatus(context, *error);
             } else {
                 clearUi(context);
             }
+            boundContext_ = nullptr;
             return;
         }
         updateUi(context);
@@ -432,49 +461,74 @@ private:
         auto *context = boundContext_;
         closeTransport();
         session_.abandon();
-        boundContext_ = nullptr;
         if (context) {
             showStatus(context, message);
         }
+        boundContext_ = nullptr;
     }
 
     void cancelFor(fcitx::InputContext *context, bool updateUi) {
-        if (!context || context != boundContext_ ||
-            !session_.activeFor(contextId(context))) {
+        if (!context || context != boundContext_) {
             return;
         }
-        if (auto request = session_.cancel(contextId(context))) {
-            bestEffortWrite(*request);
+        if (session_.activeFor(contextId(context))) {
+            if (auto request = session_.cancel(contextId(context))) {
+                bestEffortWrite(*request);
+            }
         }
         closeTransport();
-        boundContext_ = nullptr;
-        if (updateUi) {
+        if (uiCallbackActive_) {
+            context->inputPanel().reset();
+        } else if (updateUi) {
             clearUi(context);
         }
+        boundContext_ = nullptr;
     }
 
-    void clearUi(fcitx::InputContext *context) const {
-        if (!context) {
+    bool updateClientPreedit(fcitx::InputContext *context) {
+        if (!context || context != boundContext_ || !context->hasFocus()) {
+            return false;
+        }
+        uiCallbackActive_ = true;
+        context->updatePreedit();
+        uiCallbackActive_ = false;
+        return boundContext_ == context && context->hasFocus();
+    }
+
+    void updateInputPanel(fcitx::InputContext *context) {
+        if (!context || context != boundContext_ || !context->hasFocus()) {
+            return;
+        }
+        uiCallbackActive_ = true;
+        context->updateUserInterface(
+            fcitx::UserInterfaceComponent::InputPanel);
+        uiCallbackActive_ = false;
+    }
+
+    void clearUi(fcitx::InputContext *context) {
+        if (!context || context != boundContext_) {
             return;
         }
         context->inputPanel().reset();
-        context->updatePreedit();
-        context->updateUserInterface(fcitx::UserInterfaceComponent::InputPanel);
+        if (context->hasFocus() && updateClientPreedit(context)) {
+            updateInputPanel(context);
+        }
     }
 
     void showStatus(fcitx::InputContext *context,
-                    const std::string &message) const {
-        if (!context) {
+                    const std::string &message) {
+        if (!context || context != boundContext_ || !context->hasFocus()) {
             return;
         }
         context->inputPanel().reset();
         context->inputPanel().setAuxUp(fcitx::Text(message));
-        context->updatePreedit();
-        context->updateUserInterface(fcitx::UserInterfaceComponent::InputPanel);
+        if (updateClientPreedit(context)) {
+            updateInputPanel(context);
+        }
     }
 
-    void updateUi(fcitx::InputContext *context) const {
-        if (!context || context != boundContext_) {
+    void updateUi(fcitx::InputContext *context) {
+        if (!context || context != boundContext_ || !context->hasFocus()) {
             return;
         }
         context->inputPanel().reset();
@@ -509,8 +563,20 @@ private:
         case Phase::Idle:
             return;
         }
-        context->updatePreedit();
-        context->updateUserInterface(fcitx::UserInterfaceComponent::InputPanel);
+        if (session_.streaming() && !session_.preview().empty()) {
+            fcitx::Text preedit(session_.preview(),
+                                fcitx::TextFormatFlag::Underline);
+            preedit.setCursor(static_cast<int>(session_.preview().size()));
+            if (context->capabilityFlags().test(
+                    fcitx::CapabilityFlag::Preedit)) {
+                context->inputPanel().setClientPreedit(preedit);
+            } else {
+                context->inputPanel().setPreedit(preedit);
+            }
+        }
+        if (updateClientPreedit(context)) {
+            updateInputPanel(context);
+        }
     }
 
     fcitx::Instance *instance_;
@@ -520,6 +586,7 @@ private:
     std::uint64_t nextSessionId_ = 0;
     int fd_ = -1;
     bool connecting_ = false;
+    bool uiCallbackActive_ = false;
     LineBuffer input_;
     std::string output_;
     std::unique_ptr<fcitx::EventSourceIO> ioEvent_;

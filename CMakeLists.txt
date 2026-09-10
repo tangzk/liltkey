@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(fcitx5_voice VERSION 0.1.0 LANGUAGES CXX)
+project(fcitx5_voice VERSION 0.2.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
@@ -75,6 +75,15 @@ if(BUILD_TESTING)
     target_link_libraries(plugin_integration_test PRIVATE Fcitx5::Core json-c::json-c Threads::Threads)
     add_test(NAME plugin_integration COMMAND plugin_integration_test $<TARGET_FILE:voiceinput>)
     set_tests_properties(plugin_integration PROPERTIES TIMEOUT 15)
+
+    add_executable(plugin_streaming_integration_test
+                   tests/plugin_streaming_integration_test.cpp)
+    target_compile_features(plugin_streaming_integration_test PRIVATE cxx_std_20)
+    target_link_libraries(plugin_streaming_integration_test PRIVATE
+                          Fcitx5::Core json-c::json-c Threads::Threads)
+    add_test(NAME plugin_streaming_integration
+             COMMAND plugin_streaming_integration_test $<TARGET_FILE:voiceinput>)
+    set_tests_properties(plugin_streaming_integration PROPERTIES TIMEOUT 15)
 endif()
 
 install(TARGETS voiceinput

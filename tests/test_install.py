@@ -61,7 +61,7 @@ class InstallTests(unittest.TestCase):
             addon = configparser.ConfigParser()
             addon.read(stage/'usr/share/fcitx5/addon/voiceinput.conf')
             self.assertEqual(addon['Addon']['Library'], 'voiceinput')
-            self.assertEqual(addon['Addon']['Version'], '0.1.0')
+            self.assertEqual(addon['Addon']['Version'], '0.2.0')
             self.assertTrue((stage/'usr/share/fcitx5-voice/src/fcitx5_voice/server.py').is_file())
             self.assertTrue((stage/'usr/bin/fcitx5-voice-setup').stat().st_mode & 0o111)
             self.assertEqual(len(list((stage/'usr/lib').glob('*/fcitx5/voiceinput.so'))), 1)

@@ -10,16 +10,18 @@ import struct
 from pathlib import Path
 
 from .session import Session
+from .streaming_session import StreamingSession
 
 MAX_LINE = 65536
 
 
 class VoiceServer:
-    def __init__(self, path, capture_factory, recognize, max_seconds=30):
+    def __init__(self, path, capture_factory, recognize, max_seconds=30, streaming=False):
         self.path = Path(path)
         self.capture_factory = capture_factory
         self.recognize = recognize
         self.max_seconds = max_seconds
+        self.streaming = streaming
         self.server = None
         self.lock_fd = None
         self.owner = False
@@ -69,7 +71,7 @@ class VoiceServer:
 
         async def emit(event):
             if writer.is_closing():
-                return
+                raise ConnectionError('语音客户端已断开')
             writer.write(json.dumps(event, ensure_ascii=False).encode('utf-8') + b'\n')
             try:
                 await asyncio.wait_for(writer.drain(), 2)
@@ -86,8 +88,9 @@ class VoiceServer:
                 await emit({'type': 'busy', 'message': '语音服务已有连接，请稍后重试'})
                 return
             self.owner = True
-            session = Session(self.capture_factory, self.recognize, emit, self.max_seconds)
-            await emit({'type': 'ready', 'protocol': 1})
+            session_class = StreamingSession if self.streaming else Session
+            session = session_class(self.capture_factory, self.recognize, emit, self.max_seconds)
+            await emit({'type': 'ready', 'protocol': 2 if self.streaming else 1})
             while True:
                 try:
                     line = await reader.readline()

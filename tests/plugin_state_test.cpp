@@ -18,6 +18,22 @@ void require(bool condition, std::string_view message) {
     }
 }
 
+void startStreaming(Session &session, std::string_view id,
+                    std::uintptr_t context) {
+    require(session.begin(std::string(id), context),
+            "streaming session should start");
+    require(session.handleLine(R"({"type":"ready","protocol":2})") ==
+                std::optional<std::string>(
+                    std::string(R"({"type":"start","id":")") +
+                    std::string(id) + R"("})" "\n"),
+            "protocol 2 ready should produce the start request");
+    require(session.streaming(), "protocol 2 should select streaming mode");
+    session.handleLine(std::string(R"({"type":"recording","id":")") +
+                       std::string(id) + R"("})");
+    require(session.phase() == Phase::Recording,
+            "streaming session should enter recording");
+}
+
 void test_utf8_backspace_removes_one_codepoint() {
     Session session;
     require(session.begin("session-1", 101), "session should start");
@@ -108,7 +124,7 @@ void test_malformed_and_oversized_messages_are_ignored() {
             "malformed JSON must not produce output");
     require(session.phase() == Phase::Connecting,
             "malformed JSON must not change phase");
-    require(!session.handleLine(R"({"type":"ready","protocol":2})")
+    require(!session.handleLine(R"({"type":"ready","protocol":3})")
                  .has_value(),
             "wrong protocol must be ignored");
     require(session.phase() == Phase::Connecting,
@@ -119,6 +135,137 @@ void test_malformed_and_oversized_messages_are_ignored() {
             "oversized line must not produce output");
     require(session.phase() == Phase::Connecting,
             "oversized line must not change phase");
+}
+
+
+void test_streaming_partial_replaces_current_composition() {
+    Session session;
+    startStreaming(session, "stream", 201);
+
+    session.handleLine(
+        R"({"type":"partial","id":"stream","segment":1,"seq":1,"text":"你"})");
+    require(session.preview() == "你", "first partial should be displayed");
+    session.handleLine(
+        R"({"type":"partial","id":"stream","segment":1,"seq":2,"text":"你好Ubuntu"})");
+    require(session.preview() == "你好Ubuntu",
+            "newer partial should replace the entire current segment");
+    require(!session.takeCommit().has_value(),
+            "a partial must never become a commit");
+}
+
+void test_streaming_final_commits_exactly_once_and_advances_segment() {
+    Session session;
+    startStreaming(session, "final", 202);
+
+    session.handleLine(
+        R"({"type":"partial","id":"final","segment":1,"seq":1,"text":"今天"})");
+    session.handleLine(
+        R"({"type":"final","id":"final","segment":1,"seq":2,"text":"今天下午"})");
+    require(session.preview().empty(), "final should clear the composition");
+    require(session.takeCommit() == std::optional<std::string>("今天下午"),
+            "final should expose one pending commit");
+    require(!session.takeCommit().has_value(),
+            "a final must not be committed twice");
+
+    session.handleLine(
+        R"({"type":"final","id":"final","segment":1,"seq":3,"text":"重复"})");
+    require(!session.takeCommit().has_value(),
+            "duplicate final for an old segment must be ignored");
+    session.handleLine(
+        R"({"type":"partial","id":"final","segment":2,"seq":3,"text":"新句"})");
+    require(session.preview() == "新句",
+            "ignored old-segment event must not consume its sequence number");
+    require(session.phase() == Phase::Recording,
+            "a final sentence must not end a streaming session");
+}
+
+void test_streaming_rejects_stale_sequence_and_unexpected_segment() {
+    Session session;
+    startStreaming(session, "order", 203);
+
+    session.handleLine(
+        R"({"type":"partial","id":"order","segment":1,"seq":4,"text":"最新"})");
+    session.handleLine(
+        R"({"type":"partial","id":"order","segment":1,"seq":4,"text":"重复序号"})");
+    session.handleLine(
+        R"({"type":"partial","id":"order","segment":1,"seq":3,"text":"过期"})");
+    session.handleLine(
+        R"({"type":"partial","id":"order","segment":2,"seq":5,"text":"超前分句"})");
+    require(session.preview() == "最新",
+            "stale sequence and unexpected segment must not revise text");
+
+    session.handleLine(
+        R"({"type":"partial","id":"other","segment":1,"seq":5,"text":"旧会话"})");
+    require(session.preview() == "最新",
+            "a different session id must not revise text");
+}
+
+void test_streaming_empty_final_clears_and_advances() {
+    Session session;
+    startStreaming(session, "empty", 204);
+    session.handleLine(
+        R"({"type":"partial","id":"empty","segment":1,"seq":1,"text":"误识别"})");
+    session.handleLine(
+        R"({"type":"final","id":"empty","segment":1,"seq":2,"text":""})");
+
+    require(session.preview().empty(), "empty final should clear preedit");
+    require(session.takeCommit() == std::optional<std::string>(""),
+            "empty final should still be delivered exactly once");
+    session.handleLine(
+        R"({"type":"partial","id":"empty","segment":2,"seq":3,"text":"第二句"})");
+    require(session.preview() == "第二句",
+            "empty final should advance to the next segment");
+}
+
+void test_streaming_accepts_stop_tail_and_finished_ends_session() {
+    Session session;
+    startStreaming(session, "tail", 205);
+    require(session.toggle(205) ==
+                std::optional<std::string>(
+                    R"({"type":"stop","id":"tail"})" "\n"),
+            "streaming stop should send the legacy-compatible stop frame");
+    session.handleLine(
+        R"({"type":"partial","id":"tail","segment":1,"seq":1,"text":"尾"})");
+    require(session.preview() == "尾",
+            "stopping should still accept a decoder revision");
+    session.handleLine(R"({"type":"transcribing","id":"tail"})");
+    session.handleLine(
+        R"({"type":"final","id":"tail","segment":1,"seq":2,"text":"尾音"})");
+    require(session.takeCommit() == std::optional<std::string>("尾音"),
+            "stop flush final should be committable");
+    session.handleLine(R"({"type":"finished","id":"tail"})");
+    require(session.phase() == Phase::Idle,
+            "finished should end the whole streaming session");
+    require(!session.streaming(), "finished should clear streaming mode");
+}
+
+void test_streaming_rejects_invalid_event_fields() {
+    Session session;
+    startStreaming(session, "fields", 206);
+    const std::string oversized(Session::MaxResultBytes + 1, 'x');
+
+    session.handleLine(
+        R"({"type":"partial","id":"fields","segment":"1","seq":1,"text":"bad"})");
+    session.handleLine(
+        R"({"type":"partial","id":"fields","segment":1,"seq":0,"text":"bad"})");
+    session.handleLine(
+        R"({"type":"partial","id":"fields","segment":1,"seq":1.5,"text":"bad"})");
+    session.handleLine(
+        R"({"type":"partial","id":"fields","segment":1,"seq":1,"text":7})");
+    session.handleLine(
+        R"({"type":"partial","id":"fields","segment":1,"seq":1,"text":"line\nbreak"})");
+    session.handleLine(std::string(
+                           R"({"type":"partial","id":"fields","segment":1,"seq":1,"text":")") +
+                       oversized + R"("})");
+    require(session.preview().empty(),
+            "invalid streaming fields must not reach the composition");
+    require(!session.takeCommit().has_value(),
+            "invalid streaming fields must not create a commit");
+
+    session.handleLine(
+        R"({"type":"partial","id":"fields","segment":1,"seq":1,"text":"valid"})");
+    require(session.preview() == "valid",
+            "invalid events must not consume a valid sequence number");
 }
 
 void test_sensitive_identifiers_and_text_limits() {
@@ -178,6 +325,12 @@ int main() {
         test_sensitive_identifiers_and_text_limits();
         test_connection_error_without_id_terminates_session();
         test_preview_rejects_control_characters();
+        test_streaming_partial_replaces_current_composition();
+        test_streaming_final_commits_exactly_once_and_advances_segment();
+        test_streaming_rejects_stale_sequence_and_unexpected_segment();
+        test_streaming_empty_final_clears_and_advances();
+        test_streaming_accepts_stop_tail_and_finished_ends_session();
+        test_streaming_rejects_invalid_event_fields();
     } catch (const std::exception &error) {
         std::cerr << "FAIL: " << error.what() << '\n';
         return EXIT_FAILURE;
