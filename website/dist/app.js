@@ -4,13 +4,14 @@ const demoButton = document.querySelector('#play-demo');
 const demoShell = document.querySelector('.demo-shell');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const motionToggle = document.querySelector('#motion-toggle');
+const canObserveVisibility = 'IntersectionObserver' in window;
 const runningReveals = new Map();
 let manuallyPaused = false;
 try { manuallyPaused = localStorage.getItem('liltkey-motion') === 'paused'; } catch {}
 let demoTimer;
 let autoDemoTimer;
 let demoVisible = false;
-let demoHasStarted = false;
+let demoPaused = !canObserveVisibility;
 let demoRunning = false;
 
 const motionAllowed = () => !reducedMotion.matches && !manuallyPaused;
@@ -20,29 +21,38 @@ function clearAutoDemo() {
   autoDemoTimer = undefined;
 }
 
-function finishDemo() {
+function updateDemoControl() {
+  const paused = demoPaused || !motionAllowed();
+  demoShell.classList.toggle('demo-paused', paused);
+  demoButton.disabled = !motionAllowed();
+  demoButton.textContent = !motionAllowed() ? '动效已暂停' : demoPaused ? '播放演示 ▶' : '暂停演示 Ⅱ';
+}
+
+function finishDemo(repeat = true) {
   clearTimeout(demoTimer);
   clearAutoDemo();
   demoRunning = false;
+  if (!canObserveVisibility) demoPaused = true;
   demoText.textContent = '用 LiltKey，把想法写下来。';
   demoStatus.textContent = '停顿后，补充标点并提交。';
-  demoButton.innerHTML = '再看一次 <span aria-hidden="true">↻</span>';
-  demoButton.disabled = false;
   demoShell.classList.remove('playing');
+  updateDemoControl();
+  if (repeat) scheduleAutoDemo(1800);
 }
 
-function startDemo(manual = false) {
+function stopDemo() {
+  clearAutoDemo();
+  if (demoRunning) finishDemo(false);
+  updateDemoControl();
+}
+
+function startDemo() {
   clearAutoDemo();
   clearTimeout(demoTimer);
-  demoHasStarted = true;
-  demoStatus.setAttribute('aria-live', manual ? 'polite' : 'off');
-  if (!motionAllowed()) {
-    finishDemo();
-    return;
-  }
+  demoStatus.setAttribute('aria-live', 'off');
+  if (!motionAllowed() || demoPaused || document.hidden) return;
   demoRunning = true;
-  demoButton.disabled = true;
-  demoButton.textContent = '演示中…';
+  updateDemoControl();
   demoStatus.textContent = '正在显示临时文字…';
   demoShell.classList.add('playing');
   demoText.textContent = '';
@@ -55,9 +65,12 @@ function startDemo(manual = false) {
   tick();
 }
 
-function scheduleAutoDemo() {
-  if (!demoVisible || demoHasStarted || autoDemoTimer !== undefined || !motionAllowed() || document.hidden) return;
-  autoDemoTimer = setTimeout(() => startDemo(), 1000);
+function scheduleAutoDemo(delay = 1000) {
+  if (!demoVisible || demoPaused || demoRunning || autoDemoTimer !== undefined || !motionAllowed() || document.hidden) return;
+  autoDemoTimer = setTimeout(() => {
+    autoDemoTimer = undefined;
+    if (demoVisible) startDemo();
+  }, delay);
 }
 
 function cancelReveals() {
@@ -75,15 +88,18 @@ function applyMotionPreference() {
   motionToggle.title = label;
   if (paused) {
     cancelReveals();
-    clearAutoDemo();
-    if (demoRunning) finishDemo();
+    stopDemo();
   } else {
     scheduleAutoDemo();
   }
+  updateDemoControl();
 }
 
-demoButton.disabled = false;
-demoButton.addEventListener('click', () => startDemo(true));
+demoButton.addEventListener('click', () => {
+  demoPaused = !demoPaused;
+  if (demoPaused) stopDemo();
+  else startDemo();
+});
 motionToggle.hidden = false;
 motionToggle.addEventListener('click', () => {
   manuallyPaused = !manuallyPaused;
@@ -97,9 +113,8 @@ document.body.classList.add('motion-ready');
 function updatePageVisibility() {
   document.body.classList.toggle('page-hidden', document.hidden);
   if (document.hidden) {
-    clearAutoDemo();
     cancelReveals();
-    if (demoRunning) finishDemo();
+    stopDemo();
   } else {
     scheduleAutoDemo();
   }
@@ -111,7 +126,7 @@ function currentAnchor() {
   try { return document.getElementById(decodeURIComponent(window.location.hash.slice(1))); } catch { return null; }
 }
 
-if ('IntersectionObserver' in window) {
+if (canObserveVisibility) {
   const scenes = new IntersectionObserver(entries => {
     for (const entry of entries) {
       const inView = entry.isIntersecting && entry.intersectionRatio >= .15;
@@ -119,10 +134,7 @@ if ('IntersectionObserver' in window) {
       if (entry.target === demoShell) {
         demoVisible = inView;
         if (demoVisible) scheduleAutoDemo();
-        else {
-          clearAutoDemo();
-          if (demoRunning) finishDemo();
-        }
+        else stopDemo();
       }
     }
   }, { threshold: .15 });

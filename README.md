@@ -9,13 +9,15 @@
 
 ## 安装
 
-适用于 Ubuntu 26.04（amd64）。下载 deb 后，用软件中心安装，或运行：
+适用于 Ubuntu 26.04（amd64）。下载 [deb 安装包](https://github.com/tangzk/liltkey/releases/download/v0.3.0-2/fcitx5-voice_0.3.0-2_amd64.deb)后，用软件中心安装，或运行：
 
 ```bash
 sudo apt install ./fcitx5-voice_0.3.0-2_amd64.deb
 ```
 
 安装后自动完成默认配置，无须其他命令。首次请保持联网，等待约 260 MiB 模型下载完成并收到“语音输入已就绪”通知，然后注销并重新登录。
+
+安装会将默认输入法配置为 Fcitx5 并重启输入法，保留已有拼音和语音配置。请先完成正在输入的内容。版本说明与校验文件见 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.3.0-2)。
 
 ## 开始使用
 

@@ -110,6 +110,7 @@
 body:not(.motion-paused) .button:active { transform: translateY(0) scale(.98); }
 .motion-paused *, .motion-paused *::before, .motion-paused *::after { animation: none !important; transition: none !important; }
 .page-hidden *, .page-hidden *::before, .page-hidden *::after { animation-play-state: paused !important; }
+.demo-shell.demo-paused *, .demo-shell.demo-paused *::before, .demo-shell.demo-paused *::after { animation-play-state: paused !important; }
 .motion-paused, .motion-paused * { scroll-behavior: auto; }
 
 @keyframes signal-ring {
