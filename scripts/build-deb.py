@@ -46,7 +46,8 @@ def main():
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.egg-info'))
         for filename in ['pyproject.toml', 'config.example.toml', 'README.md']:
             copy(ROOT / filename, f'usr/share/fcitx5-voice/{filename}')
-        copy(ROOT / 'docs/validation.md', 'usr/share/fcitx5-voice/docs/validation.md')
+        for document in sorted((ROOT / 'docs').glob('*.md')):
+            copy(document, f'usr/share/fcitx5-voice/docs/{document.name}')
         copy(ROOT / 'packaging/json-c-copyright', 'usr/share/doc/fcitx5-voice/json-c-copyright')
         write('usr/share/fcitx5-voice/PACKAGE_VERSION', PACKAGE_VERSION + '\n')
         copy(ROOT/'packaging/fcitx5-voice-setup.service', 'usr/lib/systemd/user/fcitx5-voice-setup.service')
