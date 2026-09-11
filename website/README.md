@@ -16,11 +16,14 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory website/dist
 
 - `dist/index.html`：页面内容与安装命令。
 - `dist/styles.css`：桌面与移动端样式，包含减少动画偏好支持。
-- `dist/app.js`：演示与复制命令；复制失败时选中文字供手动复制。
+- `dist/motion.css`：声波、标题流光、按钮和快捷键动效，包含减少动态偏好与手动暂停样式。
+- `dist/app.js`：渐入、演示与复制命令；复制失败时选中文字供手动复制。
 - `dist/favicon.svg`：站点图标。
 - `.openai/hosting.json`：Sites 托管配置。
 
 维护页面时，以根目录 [README](../README.md) 为安装与能力说明的依据。产品名称为 LiltKey，现有命令仍为 `fcitx5-voice`。
+
+页面在演示卡进入视口后自动播放一次文字输入示意，仍可手动重播；不会访问麦克风。右上角按钮可暂停页面动效，偏好保存在当前浏览器。系统开启“减少动态效果”时跳过自动演示和入场动画。离开视口或切到后台时停止当前演示；直接访问安装锚点、键盘聚焦及 JavaScript 不可用时，正文保持可读。
 
 ## GitHub Pages
 

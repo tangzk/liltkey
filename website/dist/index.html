@@ -9,13 +9,14 @@
   <link rel="canonical" href="https://tangzk.github.io/liltkey/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="motion.css?v=motion-1">
+  <script src="app.js?v=motion-1" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳至正文</a>
   <header class="site-header wrap">
     <a class="wordmark" href="#" aria-label="LiltKey 首页"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.3.0</span></a>
-    <nav aria-label="主导航"><a href="#features">为什么 LiltKey</a><a href="#guide">使用指南</a><a class="nav-cta" href="#install">开始安装 <span aria-hidden="true">↗</span></a></nav>
+    <nav aria-label="主导航"><a href="#features">为什么 LiltKey</a><a href="#guide">使用指南</a><a class="nav-cta" href="#install">开始安装 <span aria-hidden="true">↗</span></a><button class="motion-toggle" id="motion-toggle" type="button" aria-label="暂停页面动效" title="暂停页面动效" hidden><svg class="motion-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="motion-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 9 6-9 6z" fill="currentColor"/></svg></button></nav>
   </header>
   <main id="main">
     <section class="hero wrap" aria-labelledby="hero-title">
@@ -27,6 +28,7 @@
         <p class="platform-note">为 Fcitx5 打造 <span aria-hidden="true">/</span> 本地 CPU 识别 <span aria-hidden="true">/</span> 中文 & English</p>
       </div>
       <div class="demo-shell" id="demo">
+        <div class="hero-signal" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="demo-top"><span>一段想法，从声音开始。</span><span class="demo-tag">输入过程示意</span></div>
         <div class="editor">
           <div class="editor-heading"><span class="document-icon" aria-hidden="true">≡</span> 今日随记 <span class="editor-label">文字输入框</span></div>
@@ -34,7 +36,7 @@
           <div class="dictation-text"><span id="demo-text">用 LiltKey，把想法写下来。</span><span class="caret" aria-hidden="true"></span></div>
           <div class="editor-bottom"><span id="demo-status" role="status" aria-live="polite">停顿后，文字自动提交。</span><span>中 / EN</span></div>
         </div>
-        <div class="voice-control"><div class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button id="play-demo" class="demo-button" type="button">播放演示 <span aria-hidden="true">▶</span></button></div>
+        <div class="voice-control"><div class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button id="play-demo" class="demo-button" type="button" disabled>播放演示 <span aria-hidden="true">▶</span></button></div>
         <div class="demo-caption"><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd></span><span>开始说话，也用它结束。</span></div>
         <p class="demo-disclaimer">此处为文字动画演示，不会访问麦克风。</p>
       </div>
