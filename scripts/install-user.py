@@ -85,6 +85,11 @@ def main():
     source.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ROOT / 'src/fcitx5_voice', source / 'fcitx5_voice', dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+    for filename in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'MODEL_LICENSES.md']:
+        shutil.copy2(ROOT / filename, source / filename)
+    shutil.copytree(ROOT / 'licenses', source / 'licenses', dirs_exist_ok=True)
+    (source / 'packaging').mkdir(exist_ok=True)
+    shutil.copy2(ROOT / 'packaging/json-c-copyright', source / 'packaging/json-c-copyright')
     managed.append(str(source))
     if not args.service_only:
         plugin = library_dir / 'voiceinput.so'

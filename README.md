@@ -6,7 +6,7 @@
 
 为 Linux / Fcitx5 打造的本地语音输入工具。边说边输入，中英自然混输，让声音留在本机。
 
-[项目宣传页](https://tangzk.github.io/liltkey-site/) · [开始安装](#从源码安装推荐) · [使用指南](#使用) · [配置与诊断](#配置与诊断) · [宣传页源码](website/README.md)
+[项目宣传页](https://tangzk.github.io/liltkey/) · [下载安装](#安装推荐) · [使用指南](#使用) · [配置与诊断](#配置与诊断) · [宣传页源码](website/README.md)
 
 > LiltKey 是产品名称；安装包、命令、服务及配置目录沿用 `fcitx5-voice`。
 
@@ -32,19 +32,42 @@ Fcitx5 原生模块 + 独立本地识别服务。默认使用中英双语流式 
 
 输入框必须正常接入 Fcitx5。支持客户端预编辑的应用在光标处显示下划线文字；不支持时退回输入法面板预编辑。鼠标在同一输入框移动光标时，能否及时取消取决于应用是否发送 reset 等输入法事件，不能保证任意应用的光标锁定。语音模式下 Enter 属于普通键盘输入，不会代替停止快捷键。
 
-## 从源码安装（推荐）
+## 安装（推荐）
+
+下载 [v0.3.0 的 `.deb` 安装包](https://github.com/tangzk/liltkey/releases/download/v0.3.0/fcitx5-voice_0.3.0_amd64.deb)，或到 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.3.0) 查看版本说明和 `SHA256SUMS`。
+
+此预编译包的验证目标是 **Ubuntu 26.04 / amd64（x86-64）/ Fcitx5 5.1.19**；其他系统或 ARM 设备请自行构建并验证。已安装的 Fcitx5 不应低于 5.1.19。
+
+在下载目录打开终端，运行：
+
+```bash
+sudo apt install ./fcitx5-voice_0.3.0_amd64.deb
+fcitx5-voice-setup
+fcitx5-voice-download-model
+fcitx5-voice doctor
+systemctl --user daemon-reload
+systemctl --user enable --now fcitx5-voice
+```
+
+只有 `apt install` 使用 sudo；后续命令使用当前桌面用户执行。最后结束拼音预编辑，从 Fcitx5 托盘菜单重启输入法，再按 `Ctrl+Alt+V` 开始听写。
+
+`.deb` 包含原生插件、服务源码、安装工具及许可声明，**不包含模型和 Python 第三方依赖**。首次运行 setup/download 命令需要联网，不会在安装 `.deb` 时自动下载、启动服务或重启输入法。初始化完成后听写无需联网。
+
+## 从源码安装
 
 目标：Ubuntu 26.04、Fcitx5 5.1.19。其他版本需要在对应系统上重新编译并验证。
 
 安装系统开发依赖：
 
 ```bash
-sudo apt install build-essential cmake pkg-config libfcitx5core-dev libfcitx5config-dev libfcitx5utils-dev libjson-c-dev python3-venv gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+sudo apt install git build-essential cmake pkg-config libfcitx5core-dev libfcitx5config-dev libfcitx5utils-dev libjson-c-dev python3-venv gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
 ```
 
 构建插件：
 
 ```bash
+git clone https://github.com/tangzk/liltkey.git
+cd liltkey
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j4
 ctest --test-dir build --output-on-failure
@@ -64,20 +87,15 @@ systemctl --user enable --now fcitx5-voice
 
 用户级安装不会更换默认输入法或改写现有拼音配置。模型固定到上游 revision，并验证 SHA256，下载失败不会替换已可用模型。默认下载流式中英模型，另外需要 Python 运行依赖。SenseVoice 仅在选择离线模式时需要。
 
-## Debian 安装包
+## 自行构建 Debian 安装包
 
 构建后执行：
 
 ```bash
 python3 scripts/build-deb.py
-sudo apt install ./dist/fcitx5-voice_0.3.0_amd64.deb
-fcitx5-voice-setup
-fcitx5-voice-download-model
-systemctl --user daemon-reload
-systemctl --user enable --now fcitx5-voice
 ```
 
-`.deb` 包含原生插件和服务源码，**不包含模型和 Python 第三方依赖**；两个 setup/download 命令安装它们。不要用 sudo 运行这些用户级命令。最后重启 Fcitx5。
+产物位于 `dist/fcitx5-voice_0.3.0_<架构>.deb`，按上面的安装步骤操作。发布的预编译包仅验证 Ubuntu 26.04 amd64；在其他平台构建时，需同时核对打包脚本中的运行库依赖。
 
 ## 配置与诊断
 
@@ -141,12 +159,21 @@ systemctl --user daemon-reload
 
 然后重启 Fcitx5。个人配置和下载模型保留；默认由安装脚本创建的运行环境删除，显式传入 `--runtime-python` 的环境保留。若安装过 `.deb`，还需 `sudo apt remove fcitx5-voice`。卸载 `.deb` 前先运行上述用户级卸载命令（打包副本路径为 `/usr/share/fcitx5-voice/scripts/install-user.py`）。
 
-## 上游
+## 许可证与致谢
+
+LiltKey 的原创代码采用 [MIT 许可证](LICENSE)，Copyright (c) 2026 tangzk and LiltKey contributors。使用、修改和分发时，请保留相应版权与许可声明。
+
+第三方代码、系统组件和预训练模型保留各自的许可证，不因本项目采用 MIT 而改变。具体来源、集成方式和版权原文见 [第三方软件声明](THIRD_PARTY_NOTICES.md) 与 [模型许可说明](MODEL_LICENSES.md)。两份说明和随附许可会包含在 Python 分发包、原生安装和 `.deb` 中；用户级安装后位于 `~/.local/lib/fcitx5-voice/service/`，系统安装文档位于 `/usr/share/doc/fcitx5-voice/`。
+
+感谢以下项目提供的输入法框架、推理工具、音频处理和模型资源：
 
 - [Fcitx5](https://github.com/fcitx/fcitx5)
 - [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx)
+- [json-c](https://github.com/json-c/json-c)
+- [NumPy](https://numpy.org/)
+- [GStreamer](https://gstreamer.freedesktop.org/)
 - [流式 Zipformer 中英模型](https://huggingface.co/csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20)
 - [CT-Transformer 中英标点模型](https://k2-fsa.github.io/sherpa/onnx/punctuation/pretrained_models.html)
 - [SenseVoice 模型](https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17)
 
-预训练模型使用其自身许可证，和本项目源码分开管理。
+模型转换和上游训练项目的来源也列于模型许可说明中；其中 SenseVoice 的模型条款应单独查阅，不能以本项目的 MIT 许可代替。

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,8 @@ name = "fcitx5-voice"
 version = "0.3.0"
 description = "Local streaming voice dictation service for Fcitx5"
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "MODEL_LICENSES.md", "licenses/**/*", "packaging/json-c-copyright"]
 dependencies = ["numpy>=1.26,<3", "sherpa-onnx==1.13.7"]
 
 [project.scripts]

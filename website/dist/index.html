@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#1746ed">
   <meta name="description" content="LiltKey，为 Linux 而生的本地语音输入。中英混合听写，边说边输入，停顿自动成句，让声音留在本机。">
   <title>LiltKey — 以声为键，开口成文</title>
-  <link rel="canonical" href="https://tangzk.github.io/liltkey-site/">
+  <link rel="canonical" href="https://tangzk.github.io/liltkey/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
@@ -23,7 +23,7 @@
         <p class="eyebrow">YOUR VOICE, YOUR KEYBOARD.</p>
         <h1 id="hero-title">以声为键，<br><span>开口成文。</span></h1>
         <p class="hero-description">给 Linux 一个更自然的输入方式。<br>说出想法，文字随之出现。识别在本机完成。</p>
-        <div class="hero-actions"><a class="button primary" href="#install">开始使用 LiltKey <span aria-hidden="true">↗</span></a><a class="text-link" href="#demo">看看输入过程 <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.3.0/fcitx5-voice_0.3.0_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">看看输入过程 <span aria-hidden="true">↓</span></a></div>
         <p class="platform-note">为 Fcitx5 打造 <span aria-hidden="true">/</span> 本地 CPU 识别 <span aria-hidden="true">/</span> 中文 & English</p>
       </div>
       <div class="demo-shell" id="demo">
@@ -56,23 +56,21 @@
     </div></section>
 
     <section class="section wrap install-section" id="install" aria-labelledby="install-title">
-      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">让下一段文字，<br>从开口开始。</h2><p>当前版本 0.3.0 · 推荐从源码安装。<br>目标环境：Ubuntu 26.04 / Fcitx5 5.1.19。</p></div>
-      <div class="installation"><div class="install-header"><h3>从源码安装</h3><span>供已获源码访问权限的用户使用</span></div><p>项目源码位于私有仓库 <a class="text-link" href="https://github.com/tangzk/liltkey">tangzk/liltkey</a>，仅授权用户可访问。请先获取源码并进入项目目录，再按顺序完成以下步骤。首次安装需要联网获取依赖和模型，完成后从 Fcitx5 托盘菜单重启输入法。</p>
-        <details class="install-step" open><summary><span>01</span> 安装系统依赖与构建插件</summary><div class="code-box"><button class="copy-button" type="button" data-copy="build-code" aria-label="复制构建命令">复制</button><pre><code id="build-code">sudo apt install build-essential cmake pkg-config libfcitx5core-dev libfcitx5config-dev libfcitx5utils-dev libjson-c-dev python3-venv gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j4
-ctest --test-dir build --output-on-failure</code></pre></div></details>
-        <details class="install-step"><summary><span>02</span> 安装用户服务与下载模型</summary><p>以下命令使用普通用户执行，不要添加 sudo。安装脚本保留现有拼音配置。</p><div class="code-box"><button class="copy-button" type="button" data-copy="service-code" aria-label="复制服务安装命令">复制</button><pre><code id="service-code">python3 scripts/install-user.py
-python3 scripts/download-model.py
-~/.local/bin/fcitx5-voice doctor
+      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">让下一段文字，<br>从开口开始。</h2><p>当前版本 0.3.0 · 推荐 .deb 安装。<br>Ubuntu 26.04 · amd64（x86-64）<br>需要 Fcitx5 5.1.19 或更新版本。</p></div>
+      <div class="installation"><div class="install-header"><h3>下载后，三步开始</h3><span>MIT 许可 · 自由使用与修改</span></div><p>先下载 <a class="text-link" href="https://github.com/tangzk/liltkey/releases/download/v0.3.0/fcitx5-voice_0.3.0_amd64.deb">.deb 安装包</a>；版本说明与校验文件见 <a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.3.0">GitHub Releases</a>。此包已编译好插件，首次设置仍需要联网获取 Python 依赖和模型。</p>
+        <details class="install-step" open><summary><span>01</span> 安装下载的 .deb</summary><p>在安装包所在的下载目录打开终端，运行：</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="复制安装命令">复制</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.3.0_amd64.deb</code></pre></div></details>
+        <details class="install-step"><summary><span>02</span> 初始化服务与下载模型</summary><p>以下命令使用普通用户执行，不要添加 sudo。安装脚本保留现有拼音配置，下载模型后听写无需联网。</p><div class="code-box"><button class="copy-button" type="button" data-copy="service-code" aria-label="复制服务安装命令">复制</button><pre><code id="service-code">fcitx5-voice-setup
+fcitx5-voice-download-model
+fcitx5-voice doctor
 systemctl --user daemon-reload
 systemctl --user enable --now fcitx5-voice</code></pre></div></details>
         <details class="install-step"><summary><span>03</span> 重启输入法，开始听写</summary><p>结束正在编辑的拼音预编辑，再从 Fcitx5 托盘菜单重启输入法。进入支持 Fcitx5 的普通文本框，按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> 开始。</p><p>如需诊断，可运行 <code>fcitx5-voice doctor</code> 检查依赖、模型和配置；实际麦克风与应用兼容性仍需在你的桌面环境中确认。</p></details>
-        <p class="install-note">LiltKey 是产品名称；安装包、命令和配置目录沿用 <code>fcitx5-voice</code>。</p><span id="copy-status" class="sr-only" role="status" aria-live="polite"></span>
+        <p class="install-note">其他系统或 ARM 设备请参考 <a class="text-link" href="https://github.com/tangzk/liltkey#从源码安装">源码安装指南</a> 并自行验证。LiltKey 是产品名称；命令和配置目录沿用 <code>fcitx5-voice</code>。</p><span id="copy-status" class="sr-only" role="status" aria-live="polite"></span>
       </div>
     </section>
 
     <section class="faq-section wrap" aria-labelledby="faq-title"><div><p class="eyebrow">GOOD TO KNOW.</p><h2 id="faq-title">开始之前，<br>这些值得了解。</h2></div><div class="faq-list">
+      <details><summary>可以使用、修改或分发源码吗？</summary><p>LiltKey 的原创代码采用 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/LICENSE">MIT 许可证</a>，允许使用、修改和分发，请保留版权与许可声明。依赖与预训练模型遵循各自条款，详见 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/THIRD_PARTY_NOTICES.md">依赖与致谢</a>、<a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/MODEL_LICENSES.md">模型许可说明</a>。</p></details>
       <details><summary>可以在所有 Linux 应用里使用吗？</summary><p>应用的文本框需要正常接入 Fcitx5。支持客户端预编辑时，临时文字显示在光标处；不支持时会回退到输入法面板。当前目标为 Ubuntu 26.04、Fcitx5 5.1.19，其他环境需要重新编译和验证。并非所有桌面应用都已完成真实麦克风验收。</p></details>
       <details><summary>会影响现有拼音输入吗？</summary><p>用户级安装不会更换默认输入法或改写已有拼音配置。普通键盘输入、切换窗口或输入框时，会取消当前语音会话。密码和标记为敏感的文本框禁用语音输入。</p></details>
       <details><summary>识别和标点一定准确吗？</summary><p>识别质量取决于录音、内容与模型，当前尚未使用用户真实口述数据集完成准确率验收。标点也可能判断不准，只处理当前分句，不会回改已经提交的正文。重要内容建议检查后再发送。</p></details>

@@ -1,0 +1,39 @@
+name: Deploy LiltKey Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/dist/**'
+      - 'LICENSE'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Enable public hosting once the source repository is public.
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - name: Include the project license
+        run: cp LICENSE website/dist/LICENSE
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: website/dist
+          include-hidden-files: true
+      - uses: actions/deploy-pages@v5
+        id: deployment

@@ -11,6 +11,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class InstallTests(unittest.TestCase):
+    def assert_license_bundle(self, destination):
+        for relative in ('LICENSE', 'THIRD_PARTY_NOTICES.md', 'MODEL_LICENSES.md',
+                         'packaging/json-c-copyright'):
+            path = destination / relative
+            self.assertTrue(path.is_file(), f'Missing installed license: {relative}')
+            self.assertEqual(path.read_bytes(), (ROOT / relative).read_bytes())
+        license_files = [path for path in (ROOT / 'licenses').rglob('*') if path.is_file()]
+        self.assertTrue(license_files, 'Third-party license texts must be present')
+        for path in license_files:
+            relative = path.relative_to(ROOT)
+            self.assertTrue((destination / relative).is_file(), str(relative))
+            self.assertEqual((destination / relative).read_bytes(), path.read_bytes())
+
     def test_user_install_preserves_existing_config_and_uninstalls_only_owned_files(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
@@ -29,6 +42,8 @@ class InstallTests(unittest.TestCase):
             conf = home/'data/fcitx5/addon/voiceinput.conf'
             self.assertTrue(conf.is_file())
             self.assertTrue((home/'.local/lib/fcitx5-voice/voiceinput.so').is_file())
+            service_source = home/'.local/lib/fcitx5-voice/service'
+            self.assert_license_bundle(service_source)
             wrapper = home/'.local/bin/fcitx5-voice'
             help_result = subprocess.run([str(wrapper), '--help'], env=env, capture_output=True)
             self.assertEqual(help_result.returncode, 0, help_result.stderr)
@@ -37,11 +52,13 @@ class InstallTests(unittest.TestCase):
             self.assertEqual(migrated.returncode, 0, migrated.stderr)
             self.assertFalse(conf.exists())
             self.assertFalse((home/'.local/lib/fcitx5-voice/voiceinput.so').exists())
+            self.assert_license_bundle(service_source)
             result = subprocess.run([sys.executable, str(ROOT/'scripts/install-user.py'), '--uninstall'],
                                     env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(conf.exists())
             self.assertFalse(wrapper.exists())
+            self.assertFalse(service_source.exists())
             self.assertTrue(existing.exists())
             self.assertTrue(Path(sys.executable).exists())
 
@@ -65,3 +82,7 @@ class InstallTests(unittest.TestCase):
             self.assertTrue((stage/'usr/share/fcitx5-voice/src/fcitx5_voice/server.py').is_file())
             self.assertTrue((stage/'usr/bin/fcitx5-voice-setup').stat().st_mode & 0o111)
             self.assertEqual(len(list((stage/'usr/lib').glob('*/fcitx5/voiceinput.so'))), 1)
+            self.assert_license_bundle(stage/'usr/share/fcitx5-voice')
+            docs = stage/'usr/share/doc/fcitx5-voice'
+            self.assert_license_bundle(docs)
+            self.assertIn((ROOT/'LICENSE').read_text(), (docs/'copyright').read_text())

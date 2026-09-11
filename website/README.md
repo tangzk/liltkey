@@ -1,6 +1,6 @@
 # LiltKey 宣传页
 
-中文产品介绍页，包含品牌介绍、文字动画演示、核心功能、快捷键指南、源码安装步骤和常见问题。
+中文产品介绍页，包含品牌介绍、文字动画演示、核心功能、快捷键指南、`.deb` 下载与安装步骤和常见问题。源码安装作为替代入口链接到主项目 README。
 
 ## 本地预览
 
@@ -24,10 +24,13 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory website/dist
 
 ## GitHub Pages
 
-公开宣传页地址：<https://tangzk.github.io/liltkey-site/>。
+宣传页目标地址：<https://tangzk.github.io/liltkey/>。
 
-- 项目完整代码与历史保存在私有仓库 `tangzk/liltkey`。
-- 公开仓库 `tangzk/liltkey-site` 只接收 `dist/` 内的静态页面文件（包括 `.nojekyll`）。
-- Pages 发布源设置为 `main` 分支的根目录 `/`。
-- 更新时将 `website/dist/` 的内容同步至公开仓库根目录，提交并推送；不要复制主仓库、历史、模型、配置或 `.openai/hosting.json`。
+- 项目代码与宣传页统一维护在 `tangzk/liltkey`，不再向 `liltkey-site` 同步页面。
+- 在仓库 **Settings → Pages → Build and deployment** 中，将发布源设为 **GitHub Actions**。GitHub Free 使用此方案时需要公开仓库。
+- [发布流程](../.github/workflows/pages.yml) 在 `main` 的页面或许可文件更新时运行，也支持手动触发。
+- 仅上传 `website/dist/` 内的静态页面文件和根目录 MIT `LICENSE`；项目代码、模型、配置及 `.openai/hosting.json` 不进入网页发布产物。
+- 样式、脚本和图标使用相对路径，适配 `/liltkey/` 子路径。页面 canonical 和根 README 的入口需与此地址一致。
+- 第一次部署前须启用 Pages；发布成功后可在 Actions 中查看实际页面地址。
+- 仓库仍为私有时流程跳过发布；改为公开并启用 Pages 后，手动运行一次 **Deploy LiltKey Pages** 即可首次发布。
 - `.openai/hosting.json` 保留先前 Sites 预览的关联，不用于 GitHub Pages 发布。

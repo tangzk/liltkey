@@ -46,6 +46,15 @@ def main():
         for filename in ['pyproject.toml', 'config.example.toml', 'README.md']:
             copy(ROOT / filename, f'usr/share/fcitx5-voice/{filename}')
         copy(ROOT / 'docs/validation.md', 'usr/share/fcitx5-voice/docs/validation.md')
+        for destination in ['usr/share/fcitx5-voice', 'usr/share/doc/fcitx5-voice']:
+            for filename in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'MODEL_LICENSES.md',
+                             'packaging/json-c-copyright']:
+                copy(ROOT / filename, f'{destination}/{filename}')
+            shutil.copytree(ROOT / 'licenses', stage / destination / 'licenses')
+        write('usr/share/doc/fcitx5-voice/copyright', (ROOT / 'LICENSE').read_text() +
+              '\nThird-party code and model terms are documented in THIRD_PARTY_NOTICES.md\n'
+              'and MODEL_LICENSES.md in this directory. See licenses/ and\n'
+              'packaging/json-c-copyright for the accompanying license texts.\n')
         copy(ROOT / 'packaging/json-c-copyright', 'usr/share/doc/fcitx5-voice/json-c-copyright')
         write('usr/bin/fcitx5-voice-setup',
               '#!/bin/sh\nexec python3 /usr/share/fcitx5-voice/scripts/install-user.py --service-only "$@"\n', 0o755)
@@ -60,7 +69,7 @@ def main():
         write('DEBIAN/control', 'Package: fcitx5-voice\nVersion: 0.3.0\nSection: utils\nPriority: optional\n'
               f'Architecture: {architecture}\nMaintainer: Fcitx5 Voice contributors\n'
               'Depends: fcitx5 (>= 5.1.19), libfcitx5core7, libfcitx5config6, libfcitx5utils2, '
-              'libjson-c5, libc6 (>= 2.38), libstdc++6 (>= 13), python3 (>= 3.11), python3-venv, '
+              'libjson-c5, libc6 (>= 2.38), libstdc++6 (>= 13.1), python3 (>= 3.11), python3-venv, '
               'gstreamer1.0-tools, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good\n'
               'Description: Offline voice dictation module for Fcitx5\n'
               ' Native Fcitx5 addon and Python service. Model and Python runtime dependencies\n'

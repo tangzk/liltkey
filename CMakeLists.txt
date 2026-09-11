@@ -91,3 +91,9 @@ install(TARGETS voiceinput
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/voiceinput.install.conf"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/fcitx5/addon"
         RENAME voiceinput.conf)
+install(FILES LICENSE THIRD_PARTY_NOTICES.md MODEL_LICENSES.md
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/fcitx5-voice")
+install(DIRECTORY licenses
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/fcitx5-voice")
+install(FILES packaging/json-c-copyright
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/fcitx5-voice/packaging")
