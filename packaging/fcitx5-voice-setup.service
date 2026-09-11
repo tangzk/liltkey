@@ -1,0 +1,16 @@
+[Unit]
+Description=Prepare Fcitx5 voice input for this desktop user
+After=graphical-session.target
+PartOf=graphical-session.target
+ConditionPathExists=/usr/share/fcitx5-voice/PACKAGE_VERSION
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/share/fcitx5-voice/scripts/auto-setup.py
+TimeoutStartSec=infinity
+Restart=on-failure
+RestartSec=300
+RestartPreventExitStatus=78
+TimeoutStopSec=15
+UMask=0077

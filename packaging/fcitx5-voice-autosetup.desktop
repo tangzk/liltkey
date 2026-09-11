@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Fcitx5 Voice Input Setup
+Name[zh_CN]=Fcitx5 语音输入自动配置
+Exec=/usr/bin/fcitx5-voice-autosetup
+TryExec=/usr/bin/fcitx5-voice-autosetup
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true

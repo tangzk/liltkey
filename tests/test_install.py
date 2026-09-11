@@ -11,6 +11,25 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class InstallTests(unittest.TestCase):
+    def test_plugin_upgrade_keeps_the_loaded_inode_unchanged(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            env = dict(os.environ, HOME=str(home), XDG_DATA_HOME=str(home/'data'),
+                       XDG_CONFIG_HOME=str(home/'config'))
+            addon = home/'source.so'
+            addon.write_bytes(b'old plugin')
+            command = [sys.executable, str(ROOT/'scripts/install-user.py'),
+                       '--plugin', str(addon), '--runtime-python', sys.executable]
+            subprocess.run(command, env=env, check=True, capture_output=True)
+            installed = home/'.local/lib/fcitx5-voice/voiceinput.so'
+            with installed.open('rb') as loaded:
+                old_inode = os.fstat(loaded.fileno()).st_ino
+                addon.write_bytes(b'new plugin binary')
+                subprocess.run(command, env=env, check=True, capture_output=True)
+                self.assertEqual(loaded.read(), b'old plugin')
+                self.assertNotEqual(installed.stat().st_ino, old_inode)
+                self.assertEqual(installed.read_bytes(), b'new plugin binary')
+
     def test_user_install_preserves_existing_config_and_uninstalls_only_owned_files(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
@@ -64,4 +83,25 @@ class InstallTests(unittest.TestCase):
             self.assertEqual(addon['Addon']['Version'], '0.3.0')
             self.assertTrue((stage/'usr/share/fcitx5-voice/src/fcitx5_voice/server.py').is_file())
             self.assertTrue((stage/'usr/bin/fcitx5-voice-setup').stat().st_mode & 0o111)
+            setup_help = subprocess.run([sys.executable,
+                                        str(stage/'usr/share/fcitx5-voice/scripts/setup.py'),
+                                        '--help'], capture_output=True, text=True)
+            self.assertEqual(setup_help.returncode, 0, setup_help.stderr)
+            desktop = configparser.ConfigParser()
+            desktop.read(stage/'etc/xdg/autostart/fcitx5-voice-autosetup.desktop')
+            executable = desktop['Desktop Entry']['Exec']
+            self.assertTrue((stage/executable.lstrip('/')).stat().st_mode & 0o111)
+            unit = configparser.ConfigParser()
+            unit.read(stage/'usr/lib/systemd/user/fcitx5-voice-setup.service')
+            self.assertEqual(unit['Service']['Restart'], 'on-failure')
+            self.assertEqual(unit['Service']['RestartSec'], '300')
+            script = unit['Service']['ExecStart'].split()[1]
+            auto_help = subprocess.run([sys.executable, str(stage/script.lstrip('/')), '--help'],
+                                       capture_output=True, text=True)
+            self.assertEqual(auto_help.returncode, 0, auto_help.stderr)
+            metadata = root/'metadata'
+            subprocess.run(['dpkg-deb', '-e', str(deb), str(metadata)], check=True)
+            for hook in ('postinst', 'prerm'):
+                self.assertTrue((metadata/hook).stat().st_mode & 0o111)
+                subprocess.run(['sh', '-n', str(metadata/hook)], check=True)
             self.assertEqual(len(list((stage/'usr/lib').glob('*/fcitx5/voiceinput.so'))), 1)

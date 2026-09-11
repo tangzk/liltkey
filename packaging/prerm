@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|upgrade)
+        /usr/bin/python3 /usr/share/fcitx5-voice/scripts/package-session.py "$1" || true
+        ;;
+esac
+exit 0

@@ -20,52 +20,51 @@ Fcitx5 原生模块 + 独立本地识别服务。默认使用中英双语流式 
 
 输入框必须正常接入 Fcitx5。支持客户端预编辑的应用在光标处显示下划线文字；不支持时退回输入法面板预编辑。鼠标在同一输入框移动光标时，能否及时取消取决于应用是否发送 reset 等输入法事件，不能保证任意应用的光标锁定。语音模式下 Enter 属于普通键盘输入，不会代替停止快捷键。
 
-## 从源码安装（推荐）
+## 安装 deb（推荐）
 
-目标：Ubuntu 26.04、Fcitx5 5.1.19。其他版本需要在对应系统上重新编译并验证。
-
-安装系统开发依赖：
+目标系统：Ubuntu 26.04、Fcitx5 5.1.19 或更新版本。下载 `fcitx5-voice_0.3.0-2_amd64.deb`，使用软件中心打开并安装，或者运行：
 
 ```bash
-sudo apt install build-essential cmake pkg-config libfcitx5core-dev libfcitx5config-dev libfcitx5utils-dev libjson-c-dev python3-venv gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+sudo apt install ./fcitx5-voice_0.3.0-2_amd64.deb
 ```
 
-构建插件：
+**只需安装这一个 deb，无须源码，也无须额外执行 setup、下载或服务命令。**
+
+安装完成后会在当前桌面用户会话中自动初始化：创建独立 Python 运行环境，下载并校验中英流式语音和标点模型，写入默认配置，启用识别服务自启动，设置默认输入法为 Fcitx5 并重启输入法。请先结束正在输入的拼音预编辑。
+
+首次初始化需要联网下载依赖和约 260 MiB 模型。收到“语音输入已就绪”的桌面通知后即可使用 `Ctrl+Alt+V` 开始／结束，`Esc` 取消；默认开启自动标点，使用系统默认麦克风。首次安装或切换输入法后，请注销并重新登录，让所有应用加载输入法环境。
+
+如果安装时没有图形桌面会话，首次登录桌面时会自动初始化。下载失败会每 5 分钟重试；关机或注销后，下次登录继续。安装包已装好与模型已就绪是两个阶段，模型尚未下载完成时不能识别。初始化成功后，后续登录不再重复安装。识别过程不需要联网。
+
+升级或重新安装 deb 会重新检查配置和模型，并保留个人语音配置及拼音设置。如果原有配置选择离线模式、自定义模型目录或关闭标点，会按该配置准备模型。手动管理的 `~/.xinputrc` 不会被覆盖；若它阻止 `im-config` 切换输入法，日志会提示原因。
+
+需要排查后台配置状态时：
+
+```bash
+journalctl --user -u fcitx5-voice-setup -n 50
+```
+
+状态文件为 `~/.local/share/fcitx5-voice/setup-status.json`（遵守 `XDG_DATA_HOME`），`status` 为 `installing`、`failed` 或 `ready`。配置完成后的识别日志位于 `fcitx5-voice` 用户服务。
+
+## 源码安装（开发者）
+
+在项目目录中，以当前桌面用户执行：
+
+```bash
+bash install.sh
+```
+
+它会自动安装系统开发依赖、编译插件并完成配置。只有系统包安装使用 sudo，其余步骤使用当前用户。重复运行可升级。开发构建缓存与一键安装的 `build/installer` 分开。
+
+构建 deb：
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j4
-ctest --test-dir build --output-on-failure
-```
-
-安装用户级插件与服务。若系统已有 `uv`，安装脚本使用独立 Python 3.11 环境；否则使用系统 Python 的 venv。安装依赖和下载模型时需要联网，识别时无需联网。
-
-```bash
-python3 scripts/install-user.py
-python3 scripts/download-model.py
-~/.local/bin/fcitx5-voice doctor
-systemctl --user daemon-reload
-systemctl --user enable --now fcitx5-voice
-```
-
-之后使用 Fcitx5 托盘菜单重启 Fcitx5，或运行 `fcitx5 -rd`。重启前结束正在编辑的拼音预编辑。
-
-用户级安装不会更换默认输入法或改写现有拼音配置。模型固定到上游 revision，并验证 SHA256，下载失败不会替换已可用模型。默认下载流式中英模型，另外需要 Python 运行依赖。SenseVoice 仅在选择离线模式时需要。
-
-## Debian 安装包
-
-构建后执行：
-
-```bash
 python3 scripts/build-deb.py
-sudo apt install ./dist/fcitx5-voice_0.3.0_amd64.deb
-fcitx5-voice-setup
-fcitx5-voice-download-model
-systemctl --user daemon-reload
-systemctl --user enable --now fcitx5-voice
 ```
 
-`.deb` 包含原生插件和服务源码，**不包含模型和 Python 第三方依赖**；两个 setup/download 命令安装它们。不要用 sudo 运行这些用户级命令。最后重启 Fcitx5。
+安装包输出至 `dist/`，不包含模型或第三方 Python 依赖，用户桌面中的自动初始化会负责下载。底层 `scripts/install-user.py`、`scripts/download-model.py` 和 `fcitx5-voice-setup` 仍供开发调试或故障排查使用，正常安装无需手动运行它们。
 
 ## 配置与诊断
 
@@ -90,20 +89,11 @@ device = ""
 - `systemctl --user status fcitx5-voice` 查看服务；`journalctl --user -u fcitx5-voice -n 30` 查看启动错误。
 - 插件报服务不可用时，先确认模型下载完成、服务已就绪；模型加载期间稍后再按快捷键。
 
-## 从离线版升级
+## 升级
 
-重新编译插件并运行安装脚本，下载新的流式模型后重启服务和 Fcitx5。安装脚本保留个人配置；旧配置没有 `backend` 时默认使用流式模式，原有 SenseVoice 文件不会被删除。若旧配置指定了非 `auto` 语言，请先选择离线模式，或将流式模式的语言改为 `auto`。
+deb 用户直接安装新版 deb，自动初始化会更新服务并重启 Fcitx5，保留个人配置。源码安装直接再次运行 `bash install.sh`。
 
-```bash
-python3 scripts/download-model.py --backend streaming
-python3 scripts/install-user.py
-systemctl --user daemon-reload
-systemctl --user restart fcitx5-voice
-```
-
-然后从托盘菜单重启 Fcitx5。服务与插件要一起更新：旧插件不支持流式协议。需要保留原来的手动预览体验时，在配置中设置 `backend = "offline"`，并执行 `python3 scripts/download-model.py --backend offline`。
-
-从 0.2.0 流式版升级时，默认下载命令会同时检查语音和标点模型。只补下标点模型可运行 `python3 scripts/download-model.py --punctuation-only`。明确关闭标点时可用 `--no-punctuation` 跳过标点模型下载；同时须在服务配置中设置 `punctuation = false`。
+旧配置没有 `backend` 时默认使用流式模式。若旧配置指定了非 `auto` 语言，需要将 `backend` 设为 `"offline"` 保持离线体验，或将 `language` 改为 `"auto"` 使用流式模式。配置不合法时安装器在修改系统前退出并说明原因。
 
 ## 验证
 
@@ -121,13 +111,23 @@ Python 测试使用合成音频和内存捕获器，不访问真实麦克风。C
 
 ## 卸载
 
+通过 deb 安装时，使用软件中心卸载或运行：
+
+```bash
+sudo apt remove fcitx5-voice
+```
+
+会停止已登录用户的后台配置任务和识别服务，并移除系统插件及登录自启动入口。个人配置、下载模型和用户运行环境保留；包移除后生成的用户服务不会启动。默认输入法设置保留为 Fcitx5，现有拼音输入不变。
+
+源码安装的用户使用：
+
 ```bash
 systemctl --user disable --now fcitx5-voice
 python3 scripts/install-user.py --uninstall
 systemctl --user daemon-reload
 ```
 
-然后重启 Fcitx5。个人配置和下载模型保留；默认由安装脚本创建的运行环境删除，显式传入 `--runtime-python` 的环境保留。若安装过 `.deb`，还需 `sudo apt remove fcitx5-voice`。卸载 `.deb` 前先运行上述用户级卸载命令（打包副本路径为 `/usr/share/fcitx5-voice/scripts/install-user.py`）。
+然后重启 Fcitx5。个人配置和下载模型保留；默认由安装脚本创建的运行环境删除，显式传入 `--runtime-python` 的环境保留。
 
 ## 上游
 
