@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+if [ "$1" = configure ]; then
+    /usr/bin/python3 /usr/share/fcitx5-voice/scripts/package-session.py configure || true
+fi
+exit 0

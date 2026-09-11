@@ -9,6 +9,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +27,8 @@ def main():
     parser.add_argument('--plugin', type=Path, default=ROOT / 'build/voiceinput.so')
     parser.add_argument('--runtime-python', type=Path, help='复用已有 Python 环境；该环境卸载时保留')
     parser.add_argument('--service-only', action='store_true', help='原生插件已由 deb 安装')
+    parser.add_argument('--quiet', action='store_true', help='供一键安装调用，省略手动配置提示')
+    parser.add_argument('--package-managed', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--uninstall', action='store_true')
     args = parser.parse_args()
     home, data, config = locations()
@@ -88,7 +91,16 @@ def main():
     managed.append(str(source))
     if not args.service_only:
         plugin = library_dir / 'voiceinput.so'
-        shutil.copy2(args.plugin, plugin)
+        # The old inode may still be mapped by the running input method. Never
+        # truncate it during an upgrade; replace the directory entry atomically.
+        with tempfile.NamedTemporaryFile(dir=library_dir, prefix='.voiceinput-',
+                                         suffix='.so', delete=False) as handle:
+            temporary = Path(handle.name)
+        try:
+            shutil.copy2(args.plugin, temporary)
+            temporary.replace(plugin)
+        finally:
+            temporary.unlink(missing_ok=True)
         files.append(str(plugin))
         addon = (ROOT / 'plugin/voiceinput.conf.in').read_text()
         addon = addon.replace('@PROJECT_VERSION@', '0.3.0')
@@ -99,8 +111,10 @@ def main():
     write(wrapper, '#!/bin/sh\nexec env ' + shlex.quote('PYTHONPATH=' + str(source)) + ' '
           + shlex.quote(str(python)) + ' -m fcitx5_voice "$@"\n', 0o755)
     exec_path = json.dumps(str(wrapper), ensure_ascii=False).replace('%', '%%').replace('$', '$$')
+    package_condition = ('ConditionPathExists=/usr/share/fcitx5-voice/PACKAGE_VERSION\n'
+                         if args.package_managed else '')
     write(config / 'systemd/user/fcitx5-voice.service',
-          '[Unit]\nDescription=Fcitx5 local voice recognition\nAfter=graphical-session.target\n'
+          '[Unit]\n' + package_condition + 'Description=Fcitx5 local voice recognition\nAfter=graphical-session.target\n'
           'PartOf=graphical-session.target\n\n[Service]\nType=simple\n'
           f'ExecStart={exec_path} serve\nRestart=on-failure\nRestartSec=3\n'
           'TimeoutStopSec=10\nUMask=0077\n\n[Install]\nWantedBy=default.target\n')
@@ -119,8 +133,9 @@ def main():
                                    'directories': sorted(set(previous['directories']) | set(managed))},
                                   ensure_ascii=False, indent=2))
     print(f'已安装：{wrapper}')
-    print('下载模型后运行：systemctl --user daemon-reload && systemctl --user enable --now fcitx5-voice')
-    print('重启 Fcitx5 后，在文本输入框按 Ctrl+Alt+V 开始／结束；流式模式自动分句提交，Esc 放弃未提交部分。')
+    if not args.quiet:
+        print('下载模型后运行：systemctl --user daemon-reload && systemctl --user enable --now fcitx5-voice')
+        print('重启 Fcitx5 后，在文本输入框按 Ctrl+Alt+V 开始／结束；流式模式自动分句提交，Esc 放弃未提交部分。')
 
 
 if __name__ == '__main__':
