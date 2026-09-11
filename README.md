@@ -1,4 +1,16 @@
-# Fcitx5 本地语音输入
+# LiltKey
+
+**以声为键，开口成文。**
+
+*Your voice, your keyboard.*
+
+为 Linux / Fcitx5 打造的本地语音输入工具。边说边输入，中英自然混输，让声音留在本机。
+
+[项目宣传页](https://tangzk.github.io/liltkey-site/) · [开始安装](#从源码安装推荐) · [使用指南](#使用) · [配置与诊断](#配置与诊断) · [宣传页源码](website/README.md)
+
+> LiltKey 是产品名称；安装包、命令、服务及配置目录沿用 `fcitx5-voice`。
+
+## 项目介绍
 
 Fcitx5 原生模块 + 独立本地识别服务。默认使用中英双语流式 Zipformer：边说边在光标处显示文字，停顿分句后自动写入输入框。保留现有拼音输入及 SenseVoice 离线预览模式；识别在本机 CPU 执行，不上传录音，不保存语音或识别文本日志。
 
