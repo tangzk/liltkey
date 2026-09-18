@@ -262,6 +262,13 @@ test('English page labels demo and motion controls in English', () => {
   assert.match(p.motionLabel(), /Resume animations/);
 });
 
+test('pages without a Chinese lang attribute default to English', () => {
+  const p = page({ lang: '' });
+  p.visible(true);
+  p.advance(1400);
+  assert.match(p.button.textContent, /Pause demo/);
+});
+
 test('English page loops as reliably as the Chinese page', () => {
   const p = page({ lang: 'en' });
   p.visible(true);

@@ -5,17 +5,17 @@
     <lastmod>2026-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://tangzk.github.io/liltkey/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tangzk.github.io/liltkey/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/zh/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://tangzk.github.io/liltkey/"/>
   </url>
   <url>
-    <loc>https://tangzk.github.io/liltkey/en/</loc>
+    <loc>https://tangzk.github.io/liltkey/zh/</loc>
     <lastmod>2026-09-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://tangzk.github.io/liltkey/en/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tangzk.github.io/liltkey/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/zh/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://tangzk.github.io/liltkey/"/>
   </url>
 </urlset>

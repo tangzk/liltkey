@@ -44,7 +44,7 @@ def main():
         for directory in ['src', 'scripts']:
             shutil.copytree(ROOT / directory, package_root / directory,
                             ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.egg-info'))
-        for filename in ['pyproject.toml', 'config.example.toml', 'README.md']:
+        for filename in ['pyproject.toml', 'config.example.toml', 'README.md', 'README.zh-CN.md']:
             copy(ROOT / filename, f'usr/share/fcitx5-voice/{filename}')
         for document in sorted((ROOT / 'docs').glob('*.md')):
             copy(document, f'usr/share/fcitx5-voice/docs/{document.name}')

@@ -26,7 +26,7 @@ const strings = {
     copy: 'Copy',
   },
 };
-const t = String(document.documentElement.lang).startsWith('en') ? strings.en : strings.zh;
+const t = String(document.documentElement.lang).startsWith('zh') ? strings.zh : strings.en;
 let manuallyPaused = false;
 try { manuallyPaused = localStorage.getItem('liltkey-motion') === 'paused'; } catch {}
 let demoTimer;

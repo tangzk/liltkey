@@ -9,15 +9,15 @@
 - License: original code is MIT; dependencies and pretrained models keep their own licenses.
 - Runs on sherpa-onnx: a bilingual Chinese–English Streaming Zipformer model for default streaming recognition, a CT-Transformer model for punctuation, and SenseVoiceSmall for an optional offline preview mode. About 260 MiB of models are downloaded on first setup, after which dictation works offline.
 - Ships a light Fcitx5 theme enabled on first setup; existing custom themes, dark preferences and fonts are preserved.
-- The interface (status messages, notifications, setup prompts) and the docs are currently in Chinese only; dictation works in both Chinese and English.
+- The interface (status messages, notifications, setup prompts) and the detailed docs are currently in Chinese only; the README is available in English. Dictation works in both Chinese and English.
 - Existing pinyin input keeps working. Voice input is disabled in password and sensitive fields.
 - Not provided: noise suppression, personal hotwords, cloud recognition, automatic rewriting. Accuracy has not yet been validated on a real-user dictation dataset.
 
 ## Docs
 
-- [Landing page (English)](https://tangzk.github.io/liltkey/en/): features, usage guide, installation and FAQ
-- [Landing page (Chinese)](https://tangzk.github.io/liltkey/): the same content in Chinese
-- [README](https://github.com/tangzk/liltkey/blob/main/README.md): installation and shortcuts
+- [Landing page](https://tangzk.github.io/liltkey/): features, usage guide, installation and FAQ
+- [Landing page (Chinese)](https://tangzk.github.io/liltkey/zh/): the same content in Chinese
+- [README](https://github.com/tangzk/liltkey/blob/main/README.md): installation and shortcuts ([Chinese](https://github.com/tangzk/liltkey/blob/main/README.zh-CN.md))
 - [Advanced usage](https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md): microphone, recognition modes, troubleshooting, upgrade and uninstall
 - [Development guide](https://github.com/tangzk/liltkey/blob/main/docs/development.md): build from source, build the deb, tests
 - [Theme](https://github.com/tangzk/liltkey/blob/main/themes/README.md): default theme, switching and restoring appearance

@@ -1,54 +1,55 @@
 # LiltKey
 
-**以声为键，开口成文。**
+**Offline voice typing for Linux and Fcitx5.**
 
-[项目宣传页](https://tangzk.github.io/liltkey/) · [English](https://tangzk.github.io/liltkey/en/) · [许可证](LICENSE)
+English · [简体中文](README.zh-CN.md)
 
-*Offline voice typing for Linux and Fcitx5: hold Ctrl+Alt to dictate Chinese and English, recognized locally. [Read in English →](https://tangzk.github.io/liltkey/en/)*
+[Website](https://tangzk.github.io/liltkey/) · [License](LICENSE)
 
+Hold `Ctrl+Alt` to talk and release to finish; text appears at the cursor as you speak. Chinese–English mixed dictation and automatic punctuation are supported. Recognition runs on your machine, recordings are never uploaded, and your existing pinyin input keeps working.
 
-按住 `Ctrl+Alt` 说话，松开结束，在光标处边说边输入。支持中英混输和自动标点。识别在本机完成，不上传录音，保留现有拼音输入。
+![LiltKey light theme: the Fcitx5 pinyin candidate panel](docs/assets/fcitx5-light-theme.png)
 
-![LiltKey 清透浅色主题：Fcitx5 拼音候选框](docs/assets/fcitx5-light-theme.png)
+*Screenshot of the real Fcitx5 candidate panel in an X11 test text box; voice status uses the same theme.*
 
-*Fcitx5 真实候选框截图，使用 X11 测试文本框；语音状态沿用同一主题。*
+> The interface (status messages, notifications, setup prompts) and the detailed docs are currently in Chinese only.
 
-## v0.4.0 新功能
+## New in v0.4.0
 
-- 长按 `Ctrl+Alt` 约 300 毫秒开始录音，松开任意一个键结束并处理尾句。
-- 按住期间可持续说多句话，不受默认 30 秒上限限制；短按或紧接其他按键不会触发。
-- 保留 `Ctrl+Alt+V` 切换开始／结束录音，以及 `Esc` 取消未提交内容。
-- 安装包同时更新原生插件与识别服务，从旧版升级即可使用。
+- Hold `Ctrl+Alt` for about 300 ms to start recording; release either key to stop and commit the last sentence.
+- Keep talking for several sentences while holding, with no default 30-second limit. A short press, or pressing another key right after, does not start recording.
+- `Ctrl+Alt+V` still toggles recording on and off, and `Esc` still discards uncommitted text.
+- The package updates both the native plugin and the recognition service, so upgrading from an older version just works.
 
-## 安装
+## Install
 
-适用于 Ubuntu 26.04（amd64）。下载 [deb 安装包](https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb)后，用软件中心安装，或运行：
+For Ubuntu 26.04 (amd64). Download the [.deb package](https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb) and install it with the Software app, or run:
 
 ```bash
 sudo apt install ./fcitx5-voice_0.4.0_amd64.deb
 ```
 
-安装包已包含清透浅色主题，首次配置默认启用；已有自定义主题、深色偏好和字体会保留。安装后自动完成默认配置，无须其他命令。首次请保持联网，等待约 260 MiB 模型下载完成并收到“语音输入已就绪”通知，然后注销并重新登录。
+The package includes a light theme that is enabled on first setup; existing custom themes, dark preferences and fonts are kept. Default configuration happens automatically after install, with no extra commands. On first run, stay online while about 260 MiB of models download, wait for the “语音输入已就绪” (Voice input is ready) notification, then log out and log back in.
 
-安装会将默认输入法配置为 Fcitx5 并重启输入法，保留已有拼音和语音配置。请先完成正在输入的内容。版本说明与校验文件见 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.4.0)。
+Installation sets Fcitx5 as the default input method and restarts it, keeping your existing pinyin and voice settings. Finish anything you're typing first. Release notes and checksums are on [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.4.0).
 
-## 开始使用
+## Usage
 
-在使用 Fcitx5 的文本输入框中：
+In any text box that uses Fcitx5:
 
-| 操作 | 快捷键 |
+| Action | Shortcut |
 |---|---|
-| 按住录音，松开结束 | 长按 `Ctrl+Alt`（约 300 毫秒） |
-| 切换开始／结束录音 | `Ctrl+Alt+V` |
-| 取消当前未提交文字 | `Esc` |
+| Hold to record, release to finish | Hold `Ctrl+Alt` (about 300 ms) |
+| Toggle recording on/off | `Ctrl+Alt+V` |
+| Discard uncommitted text | `Esc` |
 
-默认使用系统麦克风，停顿后自动加标点并提交文字。按住 `Ctrl+Alt` 可持续录音，松开任意一个键后结束并处理尾句；短按或紧接其他按键不会启动录音。`Ctrl+Alt+V` 仍可切换录音，使用该方式时每次最多 30 秒。已提交的文字会保留。
+The system microphone is used by default. Text is punctuated and committed when you pause. Holding `Ctrl+Alt` records continuously; releasing either key stops and processes the last sentence. A short press, or pressing another key right after, does not start recording. `Ctrl+Alt+V` still toggles recording, with a 30-second limit per recording in that mode. Committed text is kept.
 
-## 更多文档
+## More docs (Chinese)
 
-- [高级使用与维护](docs/advanced-usage.md)：配置麦克风、识别模式、故障排查、升级与卸载。
-- [开发指南](docs/development.md)：源码安装、构建 deb、测试与上游项目。
-- [主题与恢复](themes/README.md)：默认主题、切换外观与恢复原设置。
-- [验证记录](docs/validation.md)：测试结果与已知限制。
+- [Advanced usage and maintenance](docs/advanced-usage.md): microphone, recognition modes, troubleshooting, upgrade and uninstall.
+- [Development guide](docs/development.md): build from source, build the deb, tests and upstream projects.
+- [Theme and restore](themes/README.md): default theme, switching appearance and restoring your previous settings.
+- [Validation notes](docs/validation.md): test results and known limitations.
 
-原创代码采用 [MIT](LICENSE)；第三方软件和模型保留各自许可，详见[第三方声明](THIRD_PARTY_NOTICES.md)及[模型说明](MODEL_LICENSES.md)。
+Original code is licensed under [MIT](LICENSE); third-party software and models keep their own licenses. See [third-party notices](THIRD_PARTY_NOTICES.md) and [model licenses](MODEL_LICENSES.md).
