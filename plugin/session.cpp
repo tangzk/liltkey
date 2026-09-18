@@ -122,11 +122,12 @@ bool eraseLastUtf8(std::string &text) {
     return true;
 }
 
-bool Session::begin(std::string id, std::uintptr_t context) {
+bool Session::begin(std::string id, std::uintptr_t context, bool continuous) {
     if (phase_ != Phase::Idle || context == 0 || id.empty() ||
         id.size() > MaxIdBytes || !validUtf8(id)) {
         return false;
     }
+    continuous_ = continuous;
     id_ = std::move(id);
     context_ = context;
     preview_.clear();
@@ -145,6 +146,9 @@ std::string Session::request(std::string_view type) const {
                            json_object_new_string_len(type.data(), type.size()));
     json_object_object_add(object.get(), "id",
                            json_object_new_string_len(id_.data(), id_.size()));
+    if (type == "start" && continuous_) {
+        json_object_object_add(object.get(), "continuous", json_object_new_boolean(true));
+    }
     std::string result = json_object_to_json_string_ext(
         object.get(), JSON_C_TO_STRING_PLAIN);
     result.push_back('\n');
@@ -320,6 +324,7 @@ std::optional<std::string> Session::takeCommit() {
 void Session::reset() {
     phase_ = Phase::Idle;
     context_ = 0;
+    continuous_ = false;
     id_.clear();
     preview_.clear();
     streaming_ = false;

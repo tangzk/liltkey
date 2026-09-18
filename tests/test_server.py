@@ -77,6 +77,52 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.read(reader), {'type': 'finished', 'id': 'live'})
         self.assertFalse(self.capture.active)
 
+    async def test_hold_recording_ignores_duration_limit_until_stop(self):
+        from test_streaming_session import StreamCapture, Recognizer
+        await self.server.close()
+        self.capture = StreamCapture()
+        options = []
+
+        def capture_factory(continuous=False):
+            options.append(continuous)
+            return self.capture
+
+        self.server = VoiceServer(self.path, capture_factory, Recognizer(),
+                                  max_seconds=0.02, streaming=True)
+        await self.server.start()
+        reader, writer, _ = await self.connect()
+        await self.send(writer, {'type': 'start', 'id': 'hold', 'continuous': True})
+        self.assertEqual((await self.read(reader))['type'], 'recording')
+        await asyncio.sleep(0.06)
+        self.assertTrue(self.capture.active)
+        self.assertEqual(options, [True])
+        await self.capture.queue.put(b'first')
+        self.assertEqual((await self.read(reader))['type'], 'partial')
+        await self.send(writer, {'type': 'stop', 'id': 'hold'})
+        self.assertEqual((await self.read(reader))['type'], 'transcribing')
+        self.assertEqual((await self.read(reader))['type'], 'final')
+        self.assertEqual((await self.read(reader))['type'], 'finished')
+        self.assertFalse(self.capture.active)
+
+    async def test_offline_hold_continues_until_release(self):
+        self.server.max_seconds = 0.02
+        self.server.capture_factory = lambda continuous=False: self.capture
+        reader, writer, _ = await self.connect()
+        await self.send(writer, {'type': 'start', 'id': 'hold', 'continuous': True})
+        self.assertEqual((await self.read(reader))['type'], 'recording')
+        await asyncio.sleep(0.06)
+        self.assertTrue(self.capture.active)
+        await self.send(writer, {'type': 'stop', 'id': 'hold'})
+        self.assertEqual((await self.read(reader))['type'], 'transcribing')
+        self.assertEqual((await self.read(reader))['type'], 'result')
+        self.assertFalse(self.capture.active)
+
+    async def test_invalid_continuous_option_does_not_open_microphone(self):
+        reader, writer, _ = await self.connect()
+        await self.send(writer, {'type': 'start', 'id': 'bad', 'continuous': 'true'})
+        self.assertEqual((await self.read(reader))['type'], 'error')
+        self.assertFalse(self.capture.active)
+
     async def test_socket_final_processing_keeps_partial_raw_and_restores_stop_punctuation(self):
         from test_streaming_session import StreamCapture, Recognizer
         from fcitx5_voice.text import finalize_text

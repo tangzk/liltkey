@@ -7,7 +7,7 @@ import shutil
 class GStreamerCapture:
     def __init__(self, device='', max_seconds=30, source=None, streaming=False):
         self.source = source or ['pulsesrc'] + ([f'device={device}'] if device else [])
-        self.max_bytes = int(max_seconds * 16000 * 2)
+        self.max_bytes = None if max_seconds is None else int(max_seconds * 16000 * 2)
         self.pcm = bytearray()
         self.stderr = bytearray()
         self.process = None
@@ -36,7 +36,7 @@ class GStreamerCapture:
             await self._read_stream()
             return
         while chunk := await self.process.stdout.read(8192):
-            remaining = self.max_bytes - len(self.pcm)
+            remaining = len(chunk) if self.max_bytes is None else self.max_bytes - len(self.pcm)
             if remaining > 0:
                 self.pcm.extend(chunk[:remaining])
 
@@ -46,7 +46,9 @@ class GStreamerCapture:
         try:
             while chunk := await self.process.stdout.read(3200):
                 pending += chunk
-                size = min(len(pending) // 2 * 2, max(0, self.max_bytes - total))
+                size = len(pending) // 2 * 2
+                if self.max_bytes is not None:
+                    size = min(size, max(0, self.max_bytes - total))
                 if size:
                     try:
                         self.queue.put_nowait(pending[:size])

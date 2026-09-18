@@ -84,6 +84,14 @@ if(BUILD_TESTING)
     add_test(NAME plugin_streaming_integration
              COMMAND plugin_streaming_integration_test $<TARGET_FILE:voiceinput>)
     set_tests_properties(plugin_streaming_integration PROPERTIES TIMEOUT 15)
+    add_executable(plugin_hold_integration_test tests/plugin_hold_integration_test.cpp)
+    target_compile_features(plugin_hold_integration_test PRIVATE cxx_std_20)
+    target_link_libraries(plugin_hold_integration_test PRIVATE
+                          Fcitx5::Core json-c::json-c Threads::Threads)
+    add_test(NAME plugin_hold_integration
+             COMMAND plugin_hold_integration_test $<TARGET_FILE:voiceinput>)
+    set_tests_properties(plugin_hold_integration PROPERTIES TIMEOUT 15)
+
 endif()
 
 install(TARGETS voiceinput

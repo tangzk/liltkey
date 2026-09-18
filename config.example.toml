@@ -8,6 +8,7 @@ punctuation = true
 # SenseVoice 模型：~/.local/share/fcitx5-voice/sensevoice
 # model_dir = "/absolute/path/to/sensevoice"
 threads = 4
+# 仅限制 Ctrl+Alt+V 切换录音；长按 Ctrl+Alt 持续到松键。
 max_seconds = 30
 language = "auto"
 # streaming 双语模型会自动识别中英文，因此必须使用 auto。

@@ -23,7 +23,7 @@ public:
     static constexpr std::size_t MaxIdBytes = 128;
     static constexpr std::size_t MaxResultBytes = 8192;
 
-    bool begin(std::string id, std::uintptr_t context);
+    bool begin(std::string id, std::uintptr_t context, bool continuous = false);
     std::optional<std::string> handleLine(std::string_view line);
     std::optional<std::string> toggle(std::uintptr_t context);
     std::optional<std::string> cancel(std::uintptr_t context);
@@ -50,6 +50,7 @@ private:
     std::string id_;
     std::string preview_;
     bool streaming_ = false;
+    bool continuous_ = false;
     std::int64_t expectedSegment_ = 1;
     std::int64_t lastSequence_ = 0;
     std::optional<std::string> pendingCommit_;

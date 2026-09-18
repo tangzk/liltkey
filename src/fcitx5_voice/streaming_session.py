@@ -11,8 +11,8 @@ class StreamingSession(Session):
         super().__init__(capture_factory, recognize, emit, max_seconds)
         self.finalize = finalize
 
-    async def start(self, session_id):
-        await super().start(session_id)
+    async def start(self, session_id, continuous=False):
+        await super().start(session_id, continuous=continuous)
         if (not self.closed and self.id == session_id and self.phase == 'recording'
                 and (self.worker is None or self.worker.done())):
             self.worker = asyncio.create_task(self._run(session_id, self.capture))

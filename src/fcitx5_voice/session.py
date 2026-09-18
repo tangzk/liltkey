@@ -24,7 +24,7 @@ class Session:
         if not self.closed:
             await self.emit(event)
 
-    async def start(self, session_id):
+    async def start(self, session_id, continuous=False):
         async with self.lock:
             if self.closed:
                 return
@@ -36,7 +36,8 @@ class Session:
             if self.phase != 'idle' or (self.worker and not self.worker.done()):
                 await self.error(session_id, '上一段语音仍在处理，请稍后重试')
                 return
-            self.capture = self.capture_factory()
+            self.capture = (self.capture_factory(continuous=True) if continuous
+                            else self.capture_factory())
             self.id = session_id
             try:
                 await self.capture.start()
@@ -47,7 +48,8 @@ class Session:
                 await self.error(session_id, f'麦克风启动失败：{exc}')
                 return
             self.phase = 'recording'
-            self.timer = asyncio.create_task(self._limit(session_id))
+            if not continuous:
+                self.timer = asyncio.create_task(self._limit(session_id))
             await self.emit({'type': 'recording', 'id': session_id})
 
     async def _limit(self, session_id):

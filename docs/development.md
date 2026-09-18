@@ -38,7 +38,7 @@ ctest --test-dir build --output-on-failure
 
 Python 测试使用合成音频和内存捕获器，不访问真实麦克风。C++ 测试覆盖协议、状态、UTF-8 编辑以及隔离的 Fcitx5 输入上下文。详见 [验证记录](validation.md)。
 
-识别质量尚未以用户真实口述数据集验收。流式模式使用模型端点检测分句，不包含降噪、个人热词、云端后端或自动润色，也不会用离线模型改写已经提交的正文。单次录音仍限制为 30 秒。
+识别质量尚未以用户真实口述数据集验收。流式模式使用模型端点检测分句，不包含降噪、个人热词、云端后端或自动润色，也不会用离线模型改写已经提交的正文。长按 Ctrl+Alt 录音持续到松键，Ctrl+Alt+V 切换模式仍有默认 30 秒上限。
 
 ## 卸载源码安装
 
@@ -59,3 +59,7 @@ systemctl --user daemon-reload
 - [SenseVoice 模型](https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17)
 
 预训练模型使用其自身许可证，和本项目源码分开管理。
+
+## 长按录音协议
+
+协议 1、2 的 `start` 消息均支持可选布尔字段 `continuous`，省略时为 `false`。长按模式发送 `{"type":"start","id":"…","continuous":true}`，服务同时禁用自动停止计时和 PCM 总量截断。松键发送原有 `stop` 消息；连接或录音启动尚未完成时取消会话。客户端断开、失焦和取消仍会释放麦克风。插件和服务需一起升级才能使用持续录音。

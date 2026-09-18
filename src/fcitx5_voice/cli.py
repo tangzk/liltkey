@@ -56,8 +56,9 @@ async def serve(config):
     recognize = await asyncio.to_thread(recognizer_type, config)
     finalize = await asyncio.to_thread(build_finalizer, config) if streaming else None
     server = VoiceServer(socket_path(),
-                         lambda: GStreamerCapture(config.device, config.max_seconds,
-                                                  streaming=streaming),
+                         lambda continuous=False: GStreamerCapture(
+                             config.device, None if continuous else config.max_seconds,
+                             streaming=streaming),
                          recognize, config.max_seconds, streaming=streaming, finalize=finalize)
     stopped = asyncio.Event()
     loop = asyncio.get_running_loop()

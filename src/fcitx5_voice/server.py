@@ -115,6 +115,9 @@ class VoiceServer:
                     if any(ord(c) < 32 for c in session_id):
                         raise ValueError('无效的会话标识')
                     valid_id = session_id
+                    continuous = command.get('continuous', False)
+                    if not isinstance(continuous, bool):
+                        raise ValueError('无效的持续录音选项')
                     if kind not in {'start', 'stop', 'cancel'}:
                         raise ValueError('未知命令')
                 except (ValueError, TypeError, UnicodeError, RecursionError):
@@ -123,7 +126,10 @@ class VoiceServer:
                         error['id'] = valid_id
                     await emit(error)
                     continue
-                await getattr(session, kind)(session_id)
+                if kind == 'start':
+                    await session.start(session_id, continuous=continuous)
+                else:
+                    await getattr(session, kind)(session_id)
         except (ConnectionError, BrokenPipeError, asyncio.TimeoutError):
             pass
         finally:
