@@ -15,7 +15,7 @@
 <body>
   <a class="skip-link" href="#main">跳至正文</a>
   <header class="site-header wrap">
-    <a class="wordmark" href="#" aria-label="LiltKey 首页"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.3.0</span></a>
+    <a class="wordmark" href="#" aria-label="LiltKey 首页"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.4.0</span></a>
     <nav aria-label="主导航"><a href="#features">为什么 LiltKey</a><a href="#guide">使用指南</a><a class="nav-cta" href="#install">开始安装 <span aria-hidden="true">↗</span></a><button class="motion-toggle" id="motion-toggle" type="button" aria-label="暂停页面动效" title="暂停页面动效" hidden><svg class="motion-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="motion-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 9 6-9 6z" fill="currentColor"/></svg></button></nav>
   </header>
   <main id="main">
@@ -23,9 +23,9 @@
       <div class="hero-copy">
         <p class="eyebrow">YOUR VOICE, YOUR KEYBOARD.</p>
         <h1 id="hero-title">以声为键，<br><span>开口成文。</span></h1>
-        <p class="hero-description">给 Linux 一个更自然的输入方式。<br>说出想法，文字随之出现。识别在本机完成。</p>
-        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.3.0-3/fcitx5-voice_0.3.0-3_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">看看输入过程 <span aria-hidden="true">↓</span></a></div>
-        <p class="hero-update"><a href="#appearance">新版已内置清透浅色主题 <span aria-hidden="true">↗</span></a></p>
+        <p class="hero-description">给 Linux 一个更自然的输入方式。<br>按住 Ctrl+Alt 说话，松开结束。识别在本机完成。</p>
+        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">看看输入过程 <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-update"><a href="#guide">v0.4.0 新增：按住录音，松开结束 <span aria-hidden="true">↗</span></a></p>
         <p class="platform-note">为 Fcitx5 打造 <span aria-hidden="true">/</span> 本地 CPU 识别 <span aria-hidden="true">/</span> 中文 & English</p>
       </div>
       <div class="demo-shell" id="demo" data-phase="pinyin">
@@ -37,10 +37,10 @@
               <div class="candidate-list"><span class="candidate selected"><small>1.</small> 写下想法</span><span class="candidate"><small>2.</small> 卸下想法</span><span class="candidate"><small>3.</small> 写下</span><span class="candidate"><small>4.</small> 卸下</span><span class="candidate"><small>5.</small> 泻下</span></div>
               <span class="candidate-pages" aria-hidden="true"><img src="assets/liltkey-light/prev.png" width="18" height="18" alt=""><img src="assets/liltkey-light/next.png" width="18" height="18" alt=""></span>
             </div>
-            <div id="demo-status" class="native-status" role="status" aria-live="off" hidden>语音输入：录音中，再按快捷键结束</div>
+            <div id="demo-status" class="native-status" role="status" aria-live="off" hidden>语音输入：录音中，松开 Ctrl+Alt 结束</div>
           </div>
         </div>
-        <div class="demo-caption"><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd></span><button id="play-demo" class="demo-button" type="button" disabled>播放演示 <span aria-hidden="true">▶</span></button></div>
+        <div class="demo-caption"><span>按住 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> 说话</span><button id="play-demo" class="demo-button" type="button" disabled>播放演示 <span aria-hidden="true">▶</span></button></div>
         <p class="demo-disclaimer">拼音 → 语音输入示意 · 循环播放可暂停 · 不会访问麦克风</p>
       </div>
     </section>
@@ -75,19 +75,19 @@
     </section>
 
     <section class="guide-section" id="guide" aria-labelledby="guide-title"><div class="wrap guide-layout">
-      <div><p class="eyebrow">ONE SHORTCUT AWAY.</p><h2 id="guide-title">一个快捷键，<br>换一种表达方式。</h2><p>就在你正在使用的文本框里。<br>需要应用正常接入 Fcitx5。</p><div class="shortcut"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd><span>+</span><kbd>V</kbd></div></div>
-      <ol class="steps"><li><span class="step-number">01</span><div><h3>按一下，开始说</h3><p>将光标放入文本框，按 Ctrl+Alt+V 开始录音。已有拼音预编辑时，先完成或取消拼音。</p></div></li><li><span class="step-number">02</span><div><h3>自然停顿，自动成句</h3><p>临时文字会随上下文调整，停顿后正式写入。一次录音最多 30 秒，期间可以提交多句话。</p></div></li><li><span class="step-number">03</span><div><h3>再按一下，收好尾句</h3><p>再次按 Ctrl+Alt+V 结束并提交尾句。按 Esc 可放弃尚未提交的内容，已写入的句子保留。</p></div></li></ol>
+      <div><p class="eyebrow">ONE SHORTCUT AWAY.</p><h2 id="guide-title">一个快捷键，<br>换一种表达方式。</h2><p>就在你正在使用的文本框里。<br>需要应用正常接入 Fcitx5。</p><div class="shortcut"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd></div></div>
+      <ol class="steps"><li><span class="step-number">01</span><div><h3>按住，开始说</h3><p>将光标放入文本框，长按 Ctrl+Alt 约 300 毫秒开始录音。已有拼音预编辑时，先完成或取消拼音。</p></div></li><li><span class="step-number">02</span><div><h3>自然停顿，自动成句</h3><p>临时文字会随上下文调整，停顿后正式写入。按住期间可持续录音、提交多句话，不受默认 30 秒上限限制。</p></div></li><li><span class="step-number">03</span><div><h3>松开，收好尾句</h3><p>松开 Ctrl 或 Alt 即可结束并提交尾句。按 Esc 可放弃尚未提交的内容，已写入的句子保留。也可用 Ctrl+Alt+V 切换开始／结束录音，该方式默认每次最多 30 秒。</p></div></li></ol>
     </div></section>
 
     <section class="section wrap install-section" id="install" aria-labelledby="install-title">
-      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">让下一段文字，<br>从开口开始。</h2><p>安装包 0.3.0-3 · 安装后自动配置。<br>Ubuntu 26.04 · amd64（x86-64）<br>需要 Fcitx5 5.1.19 或更新版本。</p></div>
+      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">让下一段文字，<br>从开口开始。</h2><p>安装包 0.4.0 · 安装后自动配置。<br>Ubuntu 26.04 · amd64（x86-64）<br>需要 Fcitx5 5.1.19 或更新版本。</p></div>
       <div class="installation">
         <div class="install-header"><h3>安装后，自动配置。</h3><span>MIT 许可 · 自由使用与修改</span></div>
         <p>下载 .deb，用软件中心打开并安装。已内置清透浅色主题，首次配置默认启用；已有自定义主题与深色偏好会保留。运行环境、模型和语音服务会自动准备。</p>
-        <div class="install-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.3.0-3/fcitx5-voice_0.3.0-3_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.3.0-3">版本说明与校验文件 <span aria-hidden="true">↗</span></a></div>
+        <div class="install-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.4.0">版本说明与校验文件 <span aria-hidden="true">↗</span></a></div>
         <p>安装前请先完成正在输入的内容。安装会将默认输入法设为 Fcitx5 并重启，保留已有拼音和语音配置。</p>
-        <div class="install-ready"><h4>首次使用提示</h4><p>保持联网，自动下载约 260 MiB 模型并安装所需依赖。收到“语音输入已就绪”通知后，注销并重新登录。</p><p>在接入 Fcitx5 的文本框中，按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd>，即可开始说话。</p></div>
-        <details class="install-terminal"><summary>也可以使用终端安装</summary><p>在安装包所在的下载目录打开终端，运行：</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="复制安装命令">复制</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.3.0-3_amd64.deb</code></pre></div></details>
+        <div class="install-ready"><h4>首次使用提示</h4><p>保持联网，自动下载约 260 MiB 模型并安装所需依赖。收到“语音输入已就绪”通知后，注销并重新登录。</p><p>在接入 Fcitx5 的文本框中，长按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> 即可开始说话，松开结束。</p></div>
+        <details class="install-terminal"><summary>也可以使用终端安装</summary><p>在安装包所在的下载目录打开终端，运行：</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="复制安装命令">复制</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.4.0_amd64.deb</code></pre></div></details>
         <p class="install-note">其他系统或 ARM 设备请参考 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/development.md#源码安装开发者">源码安装指南</a> 并自行验证。LiltKey 是产品名称；命令和配置目录沿用 <code>fcitx5-voice</code>。</p><span id="copy-status" class="sr-only" role="status" aria-live="polite"></span>
       </div>
     </section>
@@ -95,12 +95,13 @@
     <section class="faq-section wrap" aria-labelledby="faq-title"><div><p class="eyebrow">GOOD TO KNOW.</p><h2 id="faq-title">开始之前，<br>这些值得了解。</h2></div><div class="faq-list">
       <details><summary>可以使用、修改或分发源码吗？</summary><p>LiltKey 的原创代码采用 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/LICENSE">MIT 许可证</a>，允许使用、修改和分发，请保留版权与许可声明。依赖与预训练模型遵循各自条款，详见 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/THIRD_PARTY_NOTICES.md">依赖与致谢</a>、<a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/MODEL_LICENSES.md">模型许可说明</a>。</p></details>
       <details><summary>可以在所有 Linux 应用里使用吗？</summary><p>应用的文本框需要正常接入 Fcitx5。支持客户端预编辑时，临时文字显示在光标处；不支持时会回退到输入法面板。当前目标为 Ubuntu 26.04、Fcitx5 5.1.19，其他环境需要重新编译和验证。并非所有桌面应用都已完成真实麦克风验收。</p></details>
+      <details><summary>会误触其他 Ctrl+Alt 快捷键吗？</summary><p>短按 Ctrl+Alt 不会开始录音；在约 300 毫秒的等待期间按其他键也会取消触发。左右 Ctrl、Alt 均可使用，AltGr 不属于 Alt。切换窗口或输入框会取消本次会话。</p></details>
       <details><summary>会影响现有拼音输入吗？</summary><p>安装会自动将默认输入法配置为 Fcitx5 并重启，已有拼音和语音配置会保留。安装前请先完成或取消正在编辑的拼音；就绪后注销重新登录。使用时，普通键盘输入、切换窗口或输入框会取消当前语音会话；密码和标记为敏感的文本框禁用语音输入。</p></details>
       <details><summary>安装后会换成截图里的主题吗？</summary><p>首次配置会将 Fcitx5 的默认浅色主题切换为 LiltKey 清透浅色。已有自定义主题、默认深色主题、跟随系统深色的偏好，以及非默认字体和候选词排列方式都会保留；升级也不会覆盖后来的选择。可在“Fcitx 5 配置 → 附加组件 → 经典用户界面”中手动切换。截图来自真实 Fcitx5 的拼音候选框；Kimpanel 和部分应用自行绘制的面板不使用这套主题。</p></details>
       <details><summary>一直没收到就绪通知怎么办？</summary><p>安装时没有桌面会话，自动配置会在下次登录后开始。首次准备需要联网，下载失败后每 5 分钟自动重试；注销或关机后，下次登录会继续初始化。无需重新安装。可在终端运行 <code>journalctl --user -u fcitx5-voice-setup -n 50</code> 查看进度与错误，更多方法见 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md#安装与自动配置">安装与故障排查</a>。</p></details>
       <details><summary>识别和标点一定准确吗？</summary><p>识别质量取决于录音、内容与模型，当前尚未使用用户真实口述数据集完成准确率验收。标点也可能判断不准，只处理当前分句，不会回改已经提交的正文。重要内容建议检查后再发送。</p></details>
-      <details><summary>还可以录完以后再确认吗？</summary><p>可以切换到保留的 SenseVoice 离线预览模式，录音结束后用 Enter 提交、Backspace 删除预览末字。该模式与默认流式模式不同；默认流式模式使用 Ctrl+Alt+V 停止，不用 Enter 确认。配置文件位于 <code>~/.config/fcitx5-voice/config.toml</code>。</p></details>
-      <details><summary>目前有哪些使用边界？</summary><p>单次录音最多 30 秒。当前不提供降噪、个人热词、云端识别或自动润色。同一输入框内移动鼠标时，取消是否及时取决于应用发送的输入法事件。预训练模型遵循各自的许可证。</p></details>
+      <details><summary>还可以录完以后再确认吗？</summary><p>可以切换到保留的 SenseVoice 离线预览模式，录音结束后用 Enter 提交、Backspace 删除预览末字。该模式与默认流式模式不同；默认流式模式松开长按组合键或再次按 Ctrl+Alt+V 即可停止，不用 Enter 确认。配置文件位于 <code>~/.config/fcitx5-voice/config.toml</code>。</p></details>
+      <details><summary>目前有哪些使用边界？</summary><p>长按 Ctrl+Alt 时持续录音，松开结束；Ctrl+Alt+V 切换录音默认每次最多 30 秒。当前不提供降噪、个人热词、云端识别或自动润色。同一输入框内移动鼠标时，取消是否及时取决于应用发送的输入法事件。预训练模型遵循各自的许可证。</p></details>
     </div></section>
   </main>
   <footer class="footer wrap"><a class="wordmark" href="#"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey</a><p>Your voice, your keyboard.</p><a href="#install">从这里开始 <span aria-hidden="true">↗</span></a></footer>

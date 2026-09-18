@@ -139,7 +139,7 @@ def main(argv=None):
         print(f'安装未完成（{step}）：{exc}\n修复后重新运行同一命令；已有配置和已校验模型会保留。',
               file=sys.stderr, flush=True)
         return 1
-    print('安装完成，识别服务已就绪。默认 Ctrl+Alt+V 开始／结束，Esc 取消。\n'
+    print('安装完成，识别服务已就绪。默认长按 Ctrl+Alt 录音、松开结束；Ctrl+Alt+V 切换开始／结束，Esc 取消。\n'
           '首次安装或切换输入法后，请注销并重新登录，让所有应用使用 Fcitx5。\n'
           '已有个人语音配置和拼音配置保持不变。', flush=True)
     return 0

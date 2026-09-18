@@ -76,7 +76,7 @@ function startDemo() {
 
 function startVoiceDemo() {
   demoText.textContent = '';
-  demoStatus.textContent = '语音输入：录音中，再按快捷键结束';
+  demoStatus.textContent = '语音输入：录音中，松开 Ctrl+Alt 结束';
   showInputPhase('voice');
   const characters = Array.from('用 LiltKey 把想法写下来');
   let frame = 0;

@@ -108,7 +108,7 @@ def main():
             temporary.unlink(missing_ok=True)
         files.append(str(plugin))
         addon = (ROOT / 'plugin/voiceinput.conf.in').read_text()
-        addon = addon.replace('@PROJECT_VERSION@', '0.3.0')
+        addon = addon.replace('@PROJECT_VERSION@', '0.4.0')
         addon = '\n'.join('Library=' + str(plugin.with_suffix('')) if line.startswith('Library=') else line
                           for line in addon.splitlines()) + '\n'
         write(data / 'fcitx5/addon/voiceinput.conf', addon)
@@ -143,7 +143,7 @@ def main():
     print(f'已安装：{wrapper}')
     if not args.quiet:
         print('下载模型后运行：systemctl --user daemon-reload && systemctl --user enable --now fcitx5-voice')
-        print('重启 Fcitx5 后，在文本输入框按 Ctrl+Alt+V 开始／结束；流式模式自动分句提交，Esc 放弃未提交部分。')
+        print('重启 Fcitx5 后，在文本输入框长按 Ctrl+Alt 录音、松开结束；Ctrl+Alt+V 切换开始／结束；流式模式自动分句提交，Esc 放弃未提交部分。')
 
 
 if __name__ == '__main__':

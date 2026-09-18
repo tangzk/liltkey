@@ -5,23 +5,30 @@
 [项目宣传页](https://tangzk.github.io/liltkey/) · [许可证](LICENSE)
 
 
-在光标处边说边输入，支持中英混输和自动标点。识别在本机完成，不上传录音，保留现有拼音输入。
+按住 `Ctrl+Alt` 说话，松开结束，在光标处边说边输入。支持中英混输和自动标点。识别在本机完成，不上传录音，保留现有拼音输入。
 
 ![LiltKey 清透浅色主题：Fcitx5 拼音候选框](docs/assets/fcitx5-light-theme.png)
 
 *Fcitx5 真实候选框截图，使用 X11 测试文本框；语音状态沿用同一主题。*
 
+## v0.4.0 新功能
+
+- 长按 `Ctrl+Alt` 约 300 毫秒开始录音，松开任意一个键结束并处理尾句。
+- 按住期间可持续说多句话，不受默认 30 秒上限限制；短按或紧接其他按键不会触发。
+- 保留 `Ctrl+Alt+V` 切换开始／结束录音，以及 `Esc` 取消未提交内容。
+- 安装包同时更新原生插件与识别服务，从旧版升级即可使用。
+
 ## 安装
 
-适用于 Ubuntu 26.04（amd64）。下载 [deb 安装包](https://github.com/tangzk/liltkey/releases/download/v0.3.0-3/fcitx5-voice_0.3.0-3_amd64.deb)后，用软件中心安装，或运行：
+适用于 Ubuntu 26.04（amd64）。下载 [deb 安装包](https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb)后，用软件中心安装，或运行：
 
 ```bash
-sudo apt install ./fcitx5-voice_0.3.0-3_amd64.deb
+sudo apt install ./fcitx5-voice_0.4.0_amd64.deb
 ```
 
 安装包已包含清透浅色主题，首次配置默认启用；已有自定义主题、深色偏好和字体会保留。安装后自动完成默认配置，无须其他命令。首次请保持联网，等待约 260 MiB 模型下载完成并收到“语音输入已就绪”通知，然后注销并重新登录。
 
-安装会将默认输入法配置为 Fcitx5 并重启输入法，保留已有拼音和语音配置。请先完成正在输入的内容。版本说明与校验文件见 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.3.0-3)。
+安装会将默认输入法配置为 Fcitx5 并重启输入法，保留已有拼音和语音配置。请先完成正在输入的内容。版本说明与校验文件见 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.4.0)。
 
 ## 开始使用
 

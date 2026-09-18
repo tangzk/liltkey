@@ -79,7 +79,7 @@ def main(argv=None):
                     notify('自动配置暂未完成，5 分钟后自动重试。详情见 fcitx5-voice-setup 服务日志。')
                 return 1
             status('ready')
-            notify('语音输入已就绪：Ctrl+Alt+V 开始／结束。首次切换输入法请注销并重新登录。')
+            notify('语音输入已就绪：长按 Ctrl+Alt 录音、松开结束；Ctrl+Alt+V 切换开始／结束。首次切换输入法请注销并重新登录。')
             return 0
     except (OSError, subprocess.SubprocessError) as exc:
         print(f'自动配置失败：{exc}', file=sys.stderr)
