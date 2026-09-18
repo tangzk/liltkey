@@ -17,9 +17,10 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory website/dist
 ## 文件
 
 - `dist/index.html`：页面内容与安装命令。
+- `dist/en/index.html`：英文版，区块与中文页一一对应，共用样式、脚本和图片。修改中文页的功能、版本或 FAQ 时需同步英文页；插件界面与通知目前仅有中文，英文页演示中的状态浮层保持中文，并在 FAQ 中说明。
 - `dist/styles.css`：桌面与移动端样式，包含减少动画偏好支持。
 - `dist/motion.css`：声波、标题流光、按钮和快捷键动效，包含减少动态偏好与手动暂停样式。
-- `dist/app.js`：渐入、演示与复制命令；复制失败时选中文字供手动复制。
+- `dist/app.js`：渐入、演示与复制命令；复制失败时选中文字供手动复制。界面文案按 `<html lang>` 在中英文之间切换。
 - `dist/favicon.svg`：站点图标。
 - `dist/sitemap.xml`：站点地图，已提交至 Google Search Console 与 Bing Webmaster Tools；新增页面时需同步。
 - `dist/llms.txt`：面向 AI 检索的站点摘要与文档索引；版本号、下载地址和能力说明需与页面同步。

@@ -8,6 +8,25 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const motionToggle = document.querySelector('#motion-toggle');
 const canObserveVisibility = 'IntersectionObserver' in window;
 const runningReveals = new Map();
+const strings = {
+  zh: {
+    motionPaused: '动效已暂停', playDemo: '播放演示 ▶', pauseDemo: '暂停演示 Ⅱ',
+    committed: '用 LiltKey，把想法写下来。', voicePreedit: '用 LiltKey 把想法写下来',
+    reducedMotion: '系统已开启减少动态效果', resumeMotion: '开启动效', pauseMotion: '暂停页面动效',
+    copied: '已复制', copiedStatus: '命令已复制到剪贴板。',
+    copyManually: '请手动复制', copyManuallyStatus: '自动复制不可用，已选中命令，请按 Ctrl+C 或使用系统复制操作。',
+    copy: '复制',
+  },
+  en: {
+    motionPaused: 'Animations paused', playDemo: 'Play demo ▶', pauseDemo: 'Pause demo Ⅱ',
+    committed: 'Write it down with LiltKey.', voicePreedit: 'Write it down with LiltKey',
+    reducedMotion: 'Reduced motion is on in your system settings', resumeMotion: 'Resume animations', pauseMotion: 'Pause animations',
+    copied: 'Copied', copiedStatus: 'Command copied to clipboard.',
+    copyManually: 'Copy manually', copyManuallyStatus: 'Automatic copy is unavailable. The command is selected; press Ctrl+C to copy it.',
+    copy: 'Copy',
+  },
+};
+const t = String(document.documentElement.lang).startsWith('en') ? strings.en : strings.zh;
 let manuallyPaused = false;
 try { manuallyPaused = localStorage.getItem('liltkey-motion') === 'paused'; } catch {}
 let demoTimer;
@@ -33,7 +52,7 @@ function updateDemoControl() {
   const paused = demoPaused || !motionAllowed();
   demoShell.classList.toggle('demo-paused', paused);
   demoButton.disabled = !motionAllowed();
-  demoButton.textContent = !motionAllowed() ? '动效已暂停' : demoPaused ? '播放演示 ▶' : '暂停演示 Ⅱ';
+  demoButton.textContent = !motionAllowed() ? t.motionPaused : demoPaused ? t.playDemo : t.pauseDemo;
 }
 
 function finishDemo(repeat = true) {
@@ -41,7 +60,7 @@ function finishDemo(repeat = true) {
   clearAutoDemo();
   demoRunning = false;
   if (!canObserveVisibility) demoPaused = true;
-  demoText.textContent = '用 LiltKey，把想法写下来。';
+  demoText.textContent = t.committed;
   demoPreedit.textContent = '';
   showInputPhase('committed');
   demoShell.classList.remove('playing');
@@ -76,9 +95,10 @@ function startDemo() {
 
 function startVoiceDemo() {
   demoText.textContent = '';
+  // The native plugin status is Chinese-only; the English page shows it as-is.
   demoStatus.textContent = '语音输入：录音中，松开 Ctrl+Alt 结束';
   showInputPhase('voice');
-  const characters = Array.from('用 LiltKey 把想法写下来');
+  const characters = Array.from(t.voicePreedit);
   let frame = 0;
   function tick() {
     demoPreedit.textContent = characters.slice(0, ++frame).join('');
@@ -105,7 +125,7 @@ function applyMotionPreference() {
   document.documentElement.classList.toggle('motion-paused', paused);
   document.body.classList.toggle('motion-paused', paused);
   motionToggle.disabled = reducedMotion.matches;
-  const label = reducedMotion.matches ? '系统已开启减少动态效果' : paused ? '开启动效' : '暂停页面动效';
+  const label = reducedMotion.matches ? t.reducedMotion : paused ? t.resumeMotion : t.pauseMotion;
   motionToggle.setAttribute('aria-label', label);
   motionToggle.title = label;
   if (paused) {
@@ -207,18 +227,18 @@ document.querySelectorAll('[data-copy]').forEach(button => {
     const status = document.querySelector('#copy-status');
     try {
       await navigator.clipboard.writeText(target.textContent.trim());
-      button.textContent = '已复制';
-      status.textContent = '命令已复制到剪贴板。';
+      button.textContent = t.copied;
+      status.textContent = t.copiedStatus;
     } catch {
       const range = document.createRange();
       range.selectNodeContents(target);
       const selection = window.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      button.textContent = '请手动复制';
-      status.textContent = '自动复制不可用，已选中命令，请按 Ctrl+C 或使用系统复制操作。';
+      button.textContent = t.copyManually;
+      status.textContent = t.copyManuallyStatus;
     }
     clearTimeout(feedbackTimer);
-    feedbackTimer = setTimeout(() => { button.textContent = '复制'; }, 2500);
+    feedbackTimer = setTimeout(() => { button.textContent = t.copy; }, 2500);
   });
 });

@@ -2,7 +2,9 @@
 
 **以声为键，开口成文。**
 
-[项目宣传页](https://tangzk.github.io/liltkey/) · [许可证](LICENSE)
+[项目宣传页](https://tangzk.github.io/liltkey/) · [English](https://tangzk.github.io/liltkey/en/) · [许可证](LICENSE)
+
+*Offline voice typing for Linux and Fcitx5: hold Ctrl+Alt to dictate Chinese and English, recognized locally. [Read in English →](https://tangzk.github.io/liltkey/en/)*
 
 
 按住 `Ctrl+Alt` 说话，松开结束，在光标处边说边输入。支持中英混输和自动标点。识别在本机完成，不上传录音，保留现有拼音输入。

@@ -7,7 +7,7 @@ const vm = require('node:vm');
 const source = readFileSync(join(__dirname, '../dist/app.js'), 'utf8');
 
 // Exercise the real page script with controlled browser events and time.
-function page({ reduced = false, observer = true } = {}) {
+function page({ reduced = false, observer = true, lang = 'zh-CN' } = {}) {
   let now = 0;
   let nextTimer = 0;
   const timers = new Map();
@@ -36,7 +36,7 @@ function page({ reduced = false, observer = true } = {}) {
   const text = elements['#demo-text'];
   text.textContent = '用 LiltKey，把想法写下来。';
   const document = Object.assign(new EventTarget(), {
-    body: new Element(), documentElement: new Element(), hidden: false,
+    body: new Element(), documentElement: Object.assign(new Element(), { lang }), hidden: false,
     querySelector: selector => elements[selector],
     querySelectorAll: selector => selector === '.hero, .demo-shell, .guide-section' ? [demo] : [],
     getElementById: id => elements[`#${id}`],
@@ -65,6 +65,7 @@ function page({ reduced = false, observer = true } = {}) {
   return {
     text, preedit: elements['#demo-preedit'], candidates: elements['#demo-candidates'],
     status: elements['#demo-status'], button: elements['#play-demo'], motion: elements['#motion-toggle'],
+    motionLabel: () => elements['#motion-toggle'].title,
     cycles: () => text.writes.filter(value => value === '今天一起').length,
     advance(milliseconds) {
       const end = now + milliseconds;
@@ -231,4 +232,39 @@ test('without visibility observation the button provides manual playback', () =>
   p.button.click();
   p.advance(15000);
   assert.equal(p.cycles(), 2);
+});
+
+test('English page keeps the pinyin stage and dictates an English sentence', () => {
+  const p = page({ lang: 'en' });
+  p.visible(true);
+  p.advance(1400);
+  assert.equal(p.preedit.textContent, 'xie xia xiang fa');
+  p.advance(2000);
+  assert.ok(p.text.writes.includes('今天一起写下想法。'));
+  assert.equal(p.status.hidden, false);
+  assert.equal(p.status.textContent, '语音输入：录音中，松开 Ctrl+Alt 结束', 'The native status is Chinese-only, so the demo must not translate it');
+  assert.match(p.preedit.textContent, /^[\x20-\x7e]+$/, 'Voice preedit should be English');
+  p.advance(4000);
+  assert.equal(p.text.textContent, 'Write it down with LiltKey.');
+  assert.ok(p.cycles() >= 1);
+});
+
+test('English page labels demo and motion controls in English', () => {
+  const p = page({ lang: 'en' });
+  p.visible(true);
+  p.advance(1400);
+  assert.match(p.button.textContent, /Pause demo/);
+  assert.match(p.motionLabel(), /Pause animations/);
+  p.button.click();
+  assert.match(p.button.textContent, /Play demo/);
+  p.motion.click();
+  assert.match(p.button.textContent, /Animations paused/);
+  assert.match(p.motionLabel(), /Resume animations/);
+});
+
+test('English page loops as reliably as the Chinese page', () => {
+  const p = page({ lang: 'en' });
+  p.visible(true);
+  p.advance(15000);
+  assert.ok(p.cycles() >= 2);
 });
