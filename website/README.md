@@ -21,6 +21,8 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory website/dist
 - `dist/motion.css`：声波、标题流光、按钮和快捷键动效，包含减少动态偏好与手动暂停样式。
 - `dist/app.js`：渐入、演示与复制命令；复制失败时选中文字供手动复制。
 - `dist/favicon.svg`：站点图标。
+- `dist/sitemap.xml`：站点地图，已提交至 Google Search Console 与 Bing Webmaster Tools；新增页面时需同步。
+- `dist/llms.txt`：面向 AI 检索的站点摘要与文档索引；版本号、下载地址和能力说明需与页面同步。
 - `dist/assets/fcitx5-light-theme.png`：与根 README 同步的真实 Fcitx5 截图，来源和拍摄说明见 [截图记录](../docs/assets/README.md)。
 - `.openai/hosting.json`：Sites 托管配置。
 

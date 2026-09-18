@@ -1,0 +1,33 @@
+# LiltKey
+
+> LiltKey is a local, offline streaming voice typing tool for Linux and Fcitx5. Hold Ctrl+Alt to speak and release to finish; text appears at the cursor as you talk, with Chinese–English mixed dictation and automatic punctuation. Recognition runs on the local CPU and audio is never uploaded.
+>
+> LiltKey 是一款为 Linux Fcitx5 打造的本地离线语音输入法。按住 Ctrl+Alt 说话，松开结束，边说边在光标处输入，支持中英混合听写和停顿自动加标点。识别在本机 CPU 上完成，不上传录音。
+
+- Product name: LiltKey. The package, command and config directory are named `fcitx5-voice` (config: `~/.config/fcitx5-voice/config.toml`).
+- Current version: 0.4.0, distributed as a `.deb` for Ubuntu 26.04 (amd64), requires Fcitx5 5.1.19 or newer.
+- License: original code is MIT; dependencies and pretrained models keep their own licenses.
+- Runs on sherpa-onnx: a bilingual Chinese–English Streaming Zipformer model for default streaming recognition, a CT-Transformer model for punctuation, and SenseVoiceSmall for an optional offline preview mode. About 260 MiB of models are downloaded on first setup, after which dictation works offline.
+- Ships a light Fcitx5 theme enabled on first setup; existing custom themes, dark preferences and fonts are preserved.
+- Existing pinyin input keeps working. Voice input is disabled in password and sensitive fields.
+- Not provided: noise suppression, personal hotwords, cloud recognition, automatic rewriting. Accuracy has not yet been validated on a real-user dictation dataset.
+
+## Docs
+
+- [Landing page (Chinese)](https://tangzk.github.io/liltkey/): features, usage guide, installation and FAQ
+- [README](https://github.com/tangzk/liltkey/blob/main/README.md): installation and shortcuts
+- [Advanced usage](https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md): microphone, recognition modes, troubleshooting, upgrade and uninstall
+- [Development guide](https://github.com/tangzk/liltkey/blob/main/docs/development.md): build from source, build the deb, tests
+- [Theme](https://github.com/tangzk/liltkey/blob/main/themes/README.md): default theme, switching and restoring appearance
+- [Validation notes](https://github.com/tangzk/liltkey/blob/main/docs/validation.md): test results and known limitations
+
+## Download
+
+- [v0.4.0 .deb (amd64)](https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb)
+- [Release notes and checksums](https://github.com/tangzk/liltkey/releases/tag/v0.4.0)
+
+## Optional
+
+- [Source repository](https://github.com/tangzk/liltkey)
+- [Third-party notices](https://github.com/tangzk/liltkey/blob/main/THIRD_PARTY_NOTICES.md)
+- [Model licenses](https://github.com/tangzk/liltkey/blob/main/MODEL_LICENSES.md)
