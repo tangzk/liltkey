@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_VERSION = '0.3.0-2'
+PACKAGE_VERSION = '0.3.0-3'
 
 
 def main():
@@ -48,6 +48,12 @@ def main():
             copy(ROOT / filename, f'usr/share/fcitx5-voice/{filename}')
         for document in sorted((ROOT / 'docs').glob('*.md')):
             copy(document, f'usr/share/fcitx5-voice/docs/{document.name}')
+        if (ROOT / 'docs/assets').is_dir():
+            shutil.copytree(ROOT / 'docs/assets', package_root / 'docs/assets')
+        for destination in [stage / 'usr/share/fcitx5/themes/liltkey-light',
+                            package_root / 'themes/liltkey-light']:
+            shutil.copytree(ROOT / 'themes/liltkey-light', destination)
+        copy(ROOT / 'themes/README.md', 'usr/share/fcitx5-voice/themes/README.md')
         for destination in ['usr/share/fcitx5-voice', 'usr/share/doc/fcitx5-voice']:
             for filename in ['LICENSE', 'THIRD_PARTY_NOTICES.md', 'MODEL_LICENSES.md',
                              'packaging/json-c-copyright']:
@@ -81,7 +87,7 @@ def main():
               'libjson-c5, libc6 (>= 2.38), libstdc++6 (>= 13.1), python3 (>= 3.11), python3-venv, im-config, '
               'systemd, dbus-user-session, libnotify-bin, '
               'gstreamer1.0-tools, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good\n'
-              'Recommends: fcitx5-frontend-gtk3, fcitx5-frontend-gtk4, fcitx5-frontend-qt5, fcitx5-frontend-qt6, pulseaudio-utils\n'
+              'Recommends: fcitx5-frontend-gtk3, fcitx5-frontend-gtk4, fcitx5-frontend-qt5, fcitx5-frontend-qt6, pulseaudio-utils, fonts-noto-cjk\n'
               'Description: Offline voice dictation module for Fcitx5\n'
               ' Native Fcitx5 addon and Python service. Model and Python runtime dependencies\n'
               ' are configured automatically in each desktop user session.\n')

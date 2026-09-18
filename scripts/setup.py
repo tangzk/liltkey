@@ -16,7 +16,7 @@ RUNTIME_PACKAGES = [
     'fcitx5', 'fcitx5-frontend-gtk3', 'fcitx5-frontend-gtk4',
     'fcitx5-frontend-qt5', 'fcitx5-frontend-qt6', 'im-config',
     'python3-venv', 'gstreamer1.0-tools', 'gstreamer1.0-plugins-base',
-    'gstreamer1.0-plugins-good', 'pulseaudio-utils',
+    'gstreamer1.0-plugins-good', 'pulseaudio-utils', 'fonts-noto-cjk',
 ]
 BUILD_PACKAGES = [
     'build-essential', 'cmake', 'pkg-config', 'libfcitx5core-dev',

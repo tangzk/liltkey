@@ -61,6 +61,8 @@ class InstallTests(unittest.TestCase):
             conf = home/'data/fcitx5/addon/voiceinput.conf'
             self.assertTrue(conf.is_file())
             self.assertTrue((home/'.local/lib/fcitx5-voice/voiceinput.so').is_file())
+            classic = home/'config/fcitx5/conf/classicui.conf'
+            self.assertIn('Theme=liltkey-light', classic.read_text())
             service_source = home/'.local/lib/fcitx5-voice/service'
             self.assert_license_bundle(service_source)
             wrapper = home/'.local/bin/fcitx5-voice'
@@ -79,6 +81,8 @@ class InstallTests(unittest.TestCase):
             self.assertFalse(wrapper.exists())
             self.assertFalse(service_source.exists())
             self.assertTrue(existing.exists())
+            self.assertTrue(classic.exists())
+            self.assertTrue((home/'data/fcitx5/themes/liltkey-light/panel.png').is_file())
             self.assertTrue(Path(sys.executable).exists())
 
     @unittest.skipUnless(shutil.which('dpkg-deb'), 'Debian packaging tool unavailable')
@@ -99,6 +103,20 @@ class InstallTests(unittest.TestCase):
             self.assertEqual(addon['Addon']['Library'], 'voiceinput')
             self.assertEqual(addon['Addon']['Version'], '0.3.0')
             self.assertTrue((stage/'usr/share/fcitx5-voice/src/fcitx5_voice/server.py').is_file())
+            for relative in ('usr/share/fcitx5/themes/liltkey-light',
+                             'usr/share/fcitx5-voice/themes/liltkey-light'):
+                for source in (ROOT/'themes/liltkey-light').iterdir():
+                    self.assertEqual((stage/relative/source.name).read_bytes(), source.read_bytes())
+            home = root/'desktop-user'
+            home.mkdir()
+            env = dict(os.environ, HOME=str(home), XDG_DATA_HOME=str(home/'data'),
+                       XDG_CONFIG_HOME=str(home/'config'))
+            subprocess.run([sys.executable,
+                            str(stage/'usr/share/fcitx5-voice/scripts/install-user.py'),
+                            '--service-only', '--package-managed', '--runtime-python', sys.executable],
+                           env=env, check=True, capture_output=True)
+            self.assertIn('Theme=liltkey-light', (home/'config/fcitx5/conf/classicui.conf').read_text())
+            self.assertTrue((home/'data/fcitx5/themes/liltkey-light/panel.png').is_file())
             self.assertTrue((stage/'usr/bin/fcitx5-voice-setup').stat().st_mode & 0o111)
             setup_help = subprocess.run([sys.executable,
                                         str(stage/'usr/share/fcitx5-voice/scripts/setup.py'),

@@ -127,6 +127,9 @@ def main():
     if not config_file.exists():
         config_file.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / 'config.example.toml', config_file)
+    sys.path.insert(0, str(ROOT / 'src'))
+    from fcitx5_voice.theme import install_theme
+    install_theme(ROOT, data, config)
     state.mkdir(parents=True, exist_ok=True)
     old_files = set(previous['files'])
     if args.service_only:

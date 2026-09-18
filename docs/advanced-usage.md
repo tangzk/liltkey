@@ -38,6 +38,10 @@ journalctl --user -u fcitx5-voice-setup -n 50
 
 状态文件为 `~/.local/share/fcitx5-voice/setup-status.json`（遵守 `XDG_DATA_HOME`），`status` 为 `installing`、`failed` 或 `ready`。配置完成后的识别日志位于 `fcitx5-voice` 用户服务。
 
+## 默认主题
+
+deb 0.3.0-3 起附带 LiltKey 清透浅色主题。首次配置将原有默认浅色主题切换为新主题，保留自定义主题、深色偏好、非默认字体与已有候选词排列方式。后续升级仅更新主题资源，不再覆盖用户的外观选择。可在“Fcitx 5 配置 → 附加组件 → 经典用户界面”中自行切换，详见[主题与恢复](../themes/README.md)。
+
 ## 配置与诊断
 
 服务配置：`~/.config/fcitx5-voice/config.toml`，遵守 `XDG_CONFIG_HOME`。参见 [config.example.toml](../config.example.toml)。修改后执行 `systemctl --user restart fcitx5-voice`。
@@ -75,6 +79,6 @@ deb 用户直接安装新版 deb，自动初始化会更新服务并重启 Fcitx
 sudo apt remove fcitx5-voice
 ```
 
-会停止已登录用户的后台配置任务和识别服务，并移除系统插件及登录自启动入口。个人配置、下载模型和用户运行环境保留；包移除后生成的用户服务不会启动。默认输入法设置保留为 Fcitx5，现有拼音输入不变。
+会停止已登录用户的后台配置任务和识别服务，并移除系统插件及登录自启动入口。个人配置、下载模型、用户主题和用户运行环境保留；包移除后生成的用户服务不会启动。默认输入法设置保留为 Fcitx5，现有拼音输入不变。
 
 源码安装的卸载步骤见[开发指南](development.md#卸载源码安装)。
