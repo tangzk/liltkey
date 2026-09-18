@@ -1,4 +1,6 @@
 const demoText = document.querySelector('#demo-text');
+const demoPreedit = document.querySelector('#demo-preedit');
+const demoCandidates = document.querySelector('#demo-candidates');
 const demoStatus = document.querySelector('#demo-status');
 const demoButton = document.querySelector('#play-demo');
 const demoShell = document.querySelector('.demo-shell');
@@ -15,6 +17,12 @@ let demoPaused = !canObserveVisibility;
 let demoRunning = false;
 
 const motionAllowed = () => !reducedMotion.matches && !manuallyPaused;
+
+function showInputPhase(phase) {
+  demoShell.dataset.phase = phase;
+  demoCandidates.hidden = phase !== 'pinyin';
+  demoStatus.hidden = phase !== 'voice';
+}
 
 function clearAutoDemo() {
   clearTimeout(autoDemoTimer);
@@ -34,7 +42,8 @@ function finishDemo(repeat = true) {
   demoRunning = false;
   if (!canObserveVisibility) demoPaused = true;
   demoText.textContent = '用 LiltKey，把想法写下来。';
-  demoStatus.textContent = '停顿后，补充标点并提交。';
+  demoPreedit.textContent = '';
+  showInputPhase('committed');
   demoShell.classList.remove('playing');
   updateDemoControl();
   if (repeat) scheduleAutoDemo(1800);
@@ -53,13 +62,26 @@ function startDemo() {
   if (!motionAllowed() || demoPaused || document.hidden) return;
   demoRunning = true;
   updateDemoControl();
-  demoStatus.textContent = '正在显示临时文字…';
   demoShell.classList.add('playing');
+  demoText.textContent = '今天一起';
+  demoPreedit.textContent = 'xie xia xiang fa';
+  showInputPhase('pinyin');
+  demoTimer = setTimeout(() => {
+    demoText.textContent = '今天一起写下想法。';
+    demoPreedit.textContent = '';
+    showInputPhase('committed');
+    demoTimer = setTimeout(startVoiceDemo, 500);
+  }, 1600);
+}
+
+function startVoiceDemo() {
   demoText.textContent = '';
+  demoStatus.textContent = '语音输入：录音中，再按快捷键结束';
+  showInputPhase('voice');
   const characters = Array.from('用 LiltKey 把想法写下来');
   let frame = 0;
   function tick() {
-    demoText.textContent = characters.slice(0, ++frame).join('');
+    demoPreedit.textContent = characters.slice(0, ++frame).join('');
     demoTimer = setTimeout(frame < characters.length ? tick : finishDemo, frame < characters.length ? 95 : 850);
   }
   tick();

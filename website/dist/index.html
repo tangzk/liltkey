@@ -8,9 +8,9 @@
   <title>LiltKey — 以声为键，开口成文</title>
   <link rel="canonical" href="https://tangzk.github.io/liltkey/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=theme-showcase-1">
-  <link rel="stylesheet" href="motion.css?v=install-loop-2">
-  <script src="app.js?v=install-loop-2" defer></script>
+  <link rel="stylesheet" href="styles.css?v=native-theme-demo-2">
+  <link rel="stylesheet" href="motion.css?v=native-theme-demo-2">
+  <script src="app.js?v=native-theme-demo-2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">跳至正文</a>
@@ -28,18 +28,20 @@
         <p class="hero-update"><a href="#appearance">新版已内置清透浅色主题 <span aria-hidden="true">↗</span></a></p>
         <p class="platform-note">为 Fcitx5 打造 <span aria-hidden="true">/</span> 本地 CPU 识别 <span aria-hidden="true">/</span> 中文 & English</p>
       </div>
-      <div class="demo-shell" id="demo">
-        <div class="hero-signal" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div class="demo-top"><span>一段想法，从声音开始。</span><span class="demo-tag">输入过程示意</span></div>
-        <div class="editor">
-          <div class="editor-heading"><span class="document-icon" aria-hidden="true">≡</span> 今日随记 <span class="editor-label">文字输入框</span></div>
-          <p class="editor-intro">留一点时间，给刚刚冒出的灵感。</p>
-          <div class="dictation-text"><span id="demo-text">用 LiltKey，把想法写下来。</span><span class="caret" aria-hidden="true"></span></div>
-          <div class="editor-bottom"><span id="demo-status" role="status" aria-live="off">停顿后，文字自动提交。</span><span>中 / EN</span></div>
+      <div class="demo-shell" id="demo" data-phase="pinyin">
+        <div class="demo-top"><span>一段想法，从声音开始。</span><span class="demo-tag">清透浅色主题</span></div>
+        <div class="native-stage" aria-label="Fcitx5 主题输入过程示意">
+          <div class="native-editor"><span id="demo-text">今天一起</span><span id="demo-preedit">xie xia xiang fa</span><span class="caret" aria-hidden="true"></span></div>
+          <div class="native-panel">
+            <div id="demo-candidates" class="native-candidates" aria-label="拼音候选词示意">
+              <div class="candidate-list"><span class="candidate selected"><small>1.</small> 写下想法</span><span class="candidate"><small>2.</small> 卸下想法</span><span class="candidate"><small>3.</small> 写下</span><span class="candidate"><small>4.</small> 卸下</span><span class="candidate"><small>5.</small> 泻下</span></div>
+              <span class="candidate-pages" aria-hidden="true"><img src="assets/liltkey-light/prev.png" width="18" height="18" alt=""><img src="assets/liltkey-light/next.png" width="18" height="18" alt=""></span>
+            </div>
+            <div id="demo-status" class="native-status" role="status" aria-live="off" hidden>语音输入：录音中，再按快捷键结束</div>
+          </div>
         </div>
-        <div class="voice-control"><div class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button id="play-demo" class="demo-button" type="button" disabled>播放演示 <span aria-hidden="true">▶</span></button></div>
-        <div class="demo-caption"><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd></span><span>开始说话，也用它结束。</span></div>
-        <p class="demo-disclaimer">文字演示循环播放，可随时暂停。不会访问麦克风。</p>
+        <div class="demo-caption"><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd></span><button id="play-demo" class="demo-button" type="button" disabled>播放演示 <span aria-hidden="true">▶</span></button></div>
+        <p class="demo-disclaimer">拼音 → 语音输入示意 · 循环播放可暂停 · 不会访问麦克风</p>
       </div>
     </section>
     <div class="principles wrap" aria-label="产品特点"><span>声音留在本机</span><span>中英自然切换</span><span>停顿自动成句</span><span>保留熟悉的拼音输入</span></div>
