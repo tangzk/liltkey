@@ -30,7 +30,7 @@ function page({ reduced = false, observer = true } = {}) {
     setAttribute() {}
     click() { if (!this.disabled) this.dispatchEvent(new Event('click')); }
   }
-  const selectors = ['#demo-text', '#demo-status', '#play-demo', '.demo-shell', '#motion-toggle'];
+  const selectors = ['#demo-text', '#demo-preedit', '#demo-status', '#demo-candidates', '#play-demo', '.demo-shell', '#motion-toggle'];
   const elements = Object.fromEntries(selectors.map(selector => [selector, new Element()]));
   const demo = elements['.demo-shell'];
   const text = elements['#demo-text'];
@@ -63,8 +63,9 @@ function page({ reduced = false, observer = true } = {}) {
     clearTimeout: id => timers.delete(id),
   });
   return {
-    text, button: elements['#play-demo'], motion: elements['#motion-toggle'],
-    cycles: () => text.writes.filter(value => value === '').length,
+    text, preedit: elements['#demo-preedit'], candidates: elements['#demo-candidates'],
+    status: elements['#demo-status'], button: elements['#play-demo'], motion: elements['#motion-toggle'],
+    cycles: () => text.writes.filter(value => value === '今天一起').length,
     advance(milliseconds) {
       const end = now + milliseconds;
       let guard = 0;
@@ -96,6 +97,37 @@ test('visible demo repeats after showing the completed sentence', () => {
   p.advance(15000);
   assert.ok(p.cycles() >= 2, 'The input demo should start multiple cycles');
   assert.ok(p.text.writes.filter(value => value === '用 LiltKey，把想法写下来。').length >= 3);
+});
+
+test('pinyin candidates commit before voice preedit uses the same native panel', () => {
+  const p = page();
+  p.visible(true);
+  p.advance(1400);
+  assert.equal(p.candidates.hidden, false);
+  assert.equal(p.status.hidden, true);
+  assert.match(p.preedit.textContent, /^[a-z ]+$/);
+  p.advance(2000);
+  assert.ok(p.text.writes.includes('今天一起写下想法。'));
+  assert.equal(p.candidates.hidden, true);
+  assert.equal(p.status.hidden, false);
+  assert.ok(p.preedit.textContent.length > 0);
+  p.advance(2500);
+  assert.equal(p.preedit.textContent, '');
+  assert.equal(p.text.textContent, '用 LiltKey，把想法写下来。');
+  assert.equal(p.status.hidden, true, 'The native panel closes after committing');
+});
+
+test('pausing during pinyin cancels all remaining native input stages', () => {
+  const p = page();
+  p.visible(true);
+  p.advance(1400);
+  p.button.click();
+  const writes = p.preedit.writes.length;
+  p.advance(15000);
+  assert.equal(p.preedit.writes.length, writes);
+  assert.equal(p.preedit.textContent, '');
+  assert.equal(p.candidates.hidden, true);
+  assert.equal(p.status.hidden, true);
 });
 
 for (const time of [1400, 4000]) {

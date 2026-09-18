@@ -34,7 +34,7 @@
 .hero-signal span {
   position: absolute;
   inset: 24%;
-  border: 1px solid #1746ed;
+  border: 1px solid var(--theme-blue);
   border-radius: 50%;
   opacity: .12;
 }
