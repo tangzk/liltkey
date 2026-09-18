@@ -32,6 +32,42 @@ class AudioTests(unittest.IsolatedAsyncioTestCase):
             await capture.cancel()
             await asyncio.gather(task, return_exceptions=True)
 
+    async def test_continuous_capture_delivers_audio_past_default_limit(self):
+        # 31 seconds of PCM, generated quickly, exercise the real pipe reader.
+        capture = GStreamerCapture(max_seconds=None, streaming=True)
+        reader = asyncio.StreamReader()
+        class Process:
+            stdout = reader
+            returncode = 0
+        capture.process = Process()
+        capture.stopping = True
+        total = 0
+        async def consume():
+            nonlocal total
+            async for chunk in capture.chunks():
+                total += len(chunk)
+        task = asyncio.create_task(consume())
+        producer = asyncio.create_task(capture._read_pcm())
+        for _ in range(310):
+            reader.feed_data(b'\x00' * 3200)
+            await asyncio.sleep(0)
+        reader.feed_eof()
+        await producer
+        await task
+        self.assertEqual(total, 992000)
+        self.assertEqual(capture.pcm, b'')
+
+    async def test_offline_continuous_capture_does_not_truncate_at_thirty_seconds(self):
+        capture = GStreamerCapture(max_seconds=None)
+        reader = asyncio.StreamReader()
+        class Process:
+            stdout = reader
+        capture.process = Process()
+        reader.feed_data(b'\x00\x01' * (31 * 16000))
+        reader.feed_eof()
+        await capture._read_pcm()
+        self.assertEqual(len(capture.pcm), 992000)
+
     async def test_stream_overflow_fails_explicitly_instead_of_dropping_audio(self):
         capture = GStreamerCapture(streaming=True, source=['audiotestsrc', 'num-buffers=1000'])
         await capture.start()

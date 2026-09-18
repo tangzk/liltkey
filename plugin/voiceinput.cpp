@@ -75,7 +75,12 @@ public:
         handlers_.emplace_back(instance_->watchEvent(
             fcitx::EventType::InputContextKeyEvent,
             fcitx::EventWatcherPhase::PreInputMethod,
-            [this](fcitx::Event &event) { handleActiveKey(event); }));
+            [this](fcitx::Event &event) {
+                handleHoldKey(event);
+                if (!static_cast<fcitx::KeyEvent &>(event).filtered()) {
+                    handleActiveKey(event);
+                }
+            }));
         handlers_.emplace_back(instance_->watchEvent(
             fcitx::EventType::InputContextKeyEvent,
             fcitx::EventWatcherPhase::PostInputMethod,
@@ -138,6 +143,77 @@ public:
     void reloadConfig() override { fcitx::readAsIni(config_, ConfigFile); }
 
 private:
+    void clearPendingHold() {
+        holdTimer_.reset();
+        holdContext_ = nullptr;
+    }
+
+    void toggleRecording() {
+        if (!boundContext_) {
+            return;
+        }
+        if (auto request = session_.toggle(contextId(boundContext_))) {
+            queue(*request);
+        }
+        if (session_.phase() == Phase::Idle) {
+            closeTransport();
+            clearUi(boundContext_);
+            boundContext_ = nullptr;
+            holdSession_ = false;
+        }
+        updateUi(boundContext_);
+    }
+
+    void handleHoldKey(fcitx::Event &event) {
+        auto &keyEvent = static_cast<fcitx::KeyEvent &>(event);
+        // Modifier keysyms/states must be read before shortcut normalization.
+        const auto key = keyEvent.rawKey();
+        const bool control = key.sym() == FcitxKey_Control_L ||
+                             key.sym() == FcitxKey_Control_R;
+        const bool alt = key.sym() == FcitxKey_Alt_L ||
+                         key.sym() == FcitxKey_Alt_R;
+        if (keyEvent.isRelease() && (control || alt)) {
+            clearPendingHold();
+            if (holdSession_ && keyEvent.inputContext() == boundContext_) {
+                holdSession_ = false;
+                // The modifier press reached the application; its release must too.
+                toggleRecording();
+            }
+            return;
+        }
+        if (!control && !alt) {
+            // Ctrl+Alt+V and other shortcuts take precedence over a pending hold.
+            clearPendingHold();
+            return;
+        }
+        if (keyEvent.isRelease() || keyEvent.filtered() || holdSession_) {
+            return;
+        }
+        const auto states = key.states();
+        const bool chord = (control || states.test(fcitx::KeyState::Ctrl)) &&
+                           (alt || states.test(fcitx::KeyState::Alt));
+        if (!chord || states.test(fcitx::KeyState::Shift) ||
+            states.test(fcitx::KeyState::Super) ||
+            states.test(fcitx::KeyState::Hyper) ||
+            states.test(fcitx::KeyState::Meta)) {
+            clearPendingHold();
+            return;
+        }
+        auto *context = keyEvent.inputContext();
+        if (holdContext_ || session_.phase() != Phase::Idle ||
+            !allowedToStart(context)) {
+            return;
+        }
+        holdContext_ = context;
+        holdTimer_ = instance_->eventLoop().addTimeEvent(
+            CLOCK_MONOTONIC, fcitx::now(CLOCK_MONOTONIC) + 300000, 1000,
+            [this](fcitx::EventSourceTime *, std::uint64_t) {
+                auto *context = std::exchange(holdContext_, nullptr);
+                start(context, true);
+                return false;
+            });
+    }
+
     void handleTriggerKey(fcitx::Event &event) {
         auto &keyEvent = static_cast<fcitx::KeyEvent &>(event);
         if (keyEvent.isRelease() || keyEvent.filtered() ||
@@ -157,19 +233,8 @@ private:
         const auto id = contextId(boundContext_);
         if (keyEvent.key().checkKeyList(config_.triggerKey.value())) {
             keyEvent.filterAndAccept();
-            if (auto request = session_.toggle(id)) {
-                queue(*request);
-            }
-            // Connecting/Starting toggles cancel immediately. The state is
-            // already idle even when there was a cancel frame to send, so the
-            // input-context pointer must be dropped on both paths.
-            if (session_.phase() == Phase::Idle) {
-                closeTransport();
-                auto *context = boundContext_;
-                clearUi(context);
-                boundContext_ = nullptr;
-            }
-            updateUi(boundContext_);
+            holdSession_ = false;
+            toggleRecording();
             return;
         }
         if (keyEvent.key().check(FcitxKey_Escape)) {
@@ -225,16 +290,17 @@ private:
                !panel.candidateList();
     }
 
-    void start(fcitx::InputContext *context) {
+    void start(fcitx::InputContext *context, bool continuous = false) {
         if (!allowedToStart(context) || session_.phase() != Phase::Idle) {
             return;
         }
         const std::string id = std::to_string(::getpid()) + "-" +
                                std::to_string(++nextSessionId_);
-        if (!session_.begin(id, contextId(context))) {
+        if (!session_.begin(id, contextId(context), continuous)) {
             return;
         }
         boundContext_ = context;
+        holdSession_ = continuous;
         updateUi(context);
         if (!openTransport()) {
             failTransport("语音服务不可用");
@@ -397,6 +463,7 @@ private:
             return;
         }
         if (before != Phase::Idle && session_.phase() == Phase::Idle) {
+            holdSession_ = false;
             closeTransport();
             if (auto error = session_.takeError()) {
                 showStatus(context, *error);
@@ -461,6 +528,7 @@ private:
         auto *context = boundContext_;
         closeTransport();
         session_.abandon();
+        holdSession_ = false;
         if (context) {
             showStatus(context, message);
         }
@@ -468,9 +536,13 @@ private:
     }
 
     void cancelFor(fcitx::InputContext *context, bool updateUi) {
+        if (context && context == holdContext_) {
+            clearPendingHold();
+        }
         if (!context || context != boundContext_) {
             return;
         }
+        holdSession_ = false;
         if (session_.activeFor(contextId(context))) {
             if (auto request = session_.cancel(contextId(context))) {
                 bestEffortWrite(*request);
@@ -543,7 +615,8 @@ private:
             break;
         case Phase::Recording:
             context->inputPanel().setAuxUp(
-                fcitx::Text("语音输入：录音中，再按快捷键结束"));
+                fcitx::Text(holdSession_ ? "语音输入：录音中，松开 Ctrl+Alt 结束"
+                                       : "语音输入：录音中，再按快捷键结束"));
             break;
         case Phase::Stopping:
         case Phase::Transcribing:
@@ -583,6 +656,9 @@ private:
     VoiceInputConfig config_;
     Session session_;
     fcitx::InputContext *boundContext_ = nullptr;
+    fcitx::InputContext *holdContext_ = nullptr;
+    bool holdSession_ = false;
+    std::unique_ptr<fcitx::EventSourceTime> holdTimer_;
     std::uint64_t nextSessionId_ = 0;
     int fd_ = -1;
     bool connecting_ = false;
