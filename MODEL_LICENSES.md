@@ -9,7 +9,7 @@ LiltKey 原创代码使用根目录 [MIT 许可证](LICENSE)。模型权重、�
 | 模型 | 在 LiltKey 中的用途 | 已核对的权重许可声明 |
 | --- | --- | --- |
 | Streaming Zipformer 中英双语 | 流式语音识别 | 固定版本模型卡标注 Apache-2.0；该版本未提供独立 LICENSE 文件 |
-| SenseVoiceSmall，sherpa-onnx 转换版 | 离线语音识别 | 固定版本 LICENSE 指向 FunASR 许可说明；官方原始模型卡指向 FunASR 模型协议 v1.1，属于自定义模型许可 |
+| SenseVoiceSmall，sherpa-onnx 转换版 | 离线语音识别及可选流式定稿校正 | 固定版本 LICENSE 指向 FunASR 许可说明；官方原始模型卡指向 FunASR 模型协议 v1.1，属于自定义模型许可 |
 | CT-Transformer，sherpa-onnx INT8 转换版 | 为识别文本恢复标点 | 原始 ModelScope 模型卡标注 Apache License 2.0；转换时的原始权重 commit 尚未固定或确认 |
 
 ## Streaming Zipformer

@@ -2,7 +2,7 @@
 
 [返回快速开始](../README.md) · [高级使用与维护](advanced-usage.md)
 
-Fcitx5 原生模块与独立本地识别服务组成语音输入功能，默认使用中英双语流式 Zipformer，保留 SenseVoice 离线预览模式。目标环境为 Ubuntu 26.04、Fcitx5 5.1.19 或更新版本。
+Fcitx5 原生模块与独立本地识别服务组成语音输入功能，默认使用中英双语流式 Zipformer，保留 SenseVoice 离线预览模式，并提供可选的 SenseVoice 流式定稿校正。目标环境为 Ubuntu 26.04、Fcitx5 5.1.19 或更新版本。
 
 以下命令均在项目根目录执行。
 
@@ -63,3 +63,9 @@ systemctl --user daemon-reload
 ## 长按录音协议
 
 协议 1、2 的 `start` 消息均支持可选布尔字段 `continuous`，省略时为 `false`。长按模式发送 `{"type":"start","id":"…","continuous":true}`，服务同时禁用自动停止计时和 PCM 总量截断。松键发送原有 `stop` 消息；连接或录音启动尚未完成时取消会话。客户端断开、失焦和取消仍会释放麦克风。插件和服务需一起升级才能使用持续录音。
+
+## 流式定稿校正
+
+`streaming_refine = true` 时，`RefinedStreamingRecognizer` 包装原流式识别器；协议仍为版本 2，插件无需更改。每段 PCM 在端点、20 秒上限或松键时送入 SenseVoice。已提交音频块的预读状态随旧流式 decoder 一起丢弃，下一段从新的 native stream 开始，避免同一音频被重复定稿。单段缓冲上限为 640,000 字节；捕获队列仍有原来的两秒容量限制。
+
+成功校正只做文本/空格规范化，使用 SenseVoice 自带标点；无效结果或推理异常回退至流式结果。`StreamingSession` 在工作线程返回后再次校验会话状态，所以取消或失焦后的校正不能产生迟到提交。测试覆盖音频分段边界、无预览定稿、持续录音上限、取消、加载失败和下载配置。校正只在原协议的 final 提交前发生。

@@ -49,6 +49,7 @@ deb 0.3.0-3 起附带 LiltKey 清透浅色主题。首次配置将原有默认�
 
 ```toml
 backend = "streaming"
+streaming_refine = false
 punctuation = true
 threads = 4
 max_seconds = 30
@@ -59,13 +60,43 @@ device = ""
 - `max_seconds` 为切换录音模式的时长上限（1–30 秒），不限制长按录音。长时间口述建议使用默认流式模式，音频逐块处理；离线模式在内存中保留整段音频，松键后按最多 30 秒分段识别并合并预览，分段边界可能影响识别质量。
 - `device` 为空时使用系统默认麦克风。运行 `fcitx5-voice devices` 查询音频设备；`pactl list short sources` 的 source 名称可用于 `device`。系统使用 PipeWire 时通过 PulseAudio 兼容服务采集。
 - `backend` 可选 `streaming`（默认，边说边显示并自动提交）或 `offline`（SenseVoice，结束录音后 Enter 提交）。
-- `punctuation` 默认为 `true`，仅用于流式模式。设为 `false` 可关闭标点模型，空格规范化仍启用；离线 SenseVoice 保持原行为。
+- `streaming_refine` 默认为 `false`。设为 `true` 时保留流式草稿，在每段提交前用 SenseVoice 重识别该段音频；失败时保留原流式结果。参见下方开启步骤。
+- `punctuation` 默认为 `true`，仅用于流式模式。设为 `false` 可关闭标点模型，空格规范化仍启用；SenseVoice（离线或定稿校正）自带标点，不再重复使用该标点模型。
 - `punctuation_model_dir` 指定标点模型目录，默认 `~/.local/share/fcitx5-voice/punct-ct-transformer-zh-en-int8`，遵守 `XDG_DATA_HOME`。
-- `streaming_model_dir` 指定流式模型目录，默认 `~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20`。`model_dir` 仅用于离线模式，默认 `~/.local/share/fcitx5-voice/sensevoice`。两个目录均遵守 `XDG_DATA_HOME`。
+- `streaming_model_dir` 指定流式模型目录，默认 `~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20`。`model_dir` 用于离线模式和流式定稿校正，默认 `~/.local/share/fcitx5-voice/sensevoice`。两个目录均遵守 `XDG_DATA_HOME`。
 - 流式模型自动识别中文和英文混输，要求 `language = "auto"`，不能强制单一语言。离线 SenseVoice 支持 `auto/zh/en/ja/ko/yue`。
 - `doctor` 只检查依赖、模型存在性和配置，不采集麦克风，不代表桌面兼容性测试通过。
 - `systemctl --user status fcitx5-voice` 查看服务；`journalctl --user -u fcitx5-voice -n 30` 查看启动错误。
 - 插件报服务不可用时，先确认模型下载完成、服务已就绪；模型加载期间稍后再按快捷键。
+
+## 流式预览与快速定稿校正
+
+在项目根目录先下载并校验 SenseVoice（已有模型会跳过下载）：
+
+```bash
+python3 scripts/download-model.py --with-refinement
+```
+
+deb 安装用户无须检出源码，可改用以下命令准备模型（已有模型会校验后跳过）：
+
+```bash
+fcitx5-voice-download-model --with-refinement
+```
+
+然后在个人 `config.toml` 中设置：
+
+```toml
+backend = "streaming"
+streaming_refine = true
+```
+
+执行 `fcitx5-voice doctor`，确认 SenseVoice 校正模型就绪，再执行 `systemctl --user restart fcitx5-voice`。使用自定义 `model_dir` 时，改用 `python3 scripts/download-model.py --backend offline --dest /你的模型目录`；一键安装器也会按配置准备这个目录。
+
+录音时继续显示流式草稿；停顿分句或松键时，SenseVoice 用该段原始音频生成最终文字，再提交一次。它不会修改已经提交到应用的正文。SenseVoice 自带标点，不重复套用 CT-Transformer；校正失败时保留原流式结果和原标点设置，并在本次录音剩余时间继续使用原流式识别，下一次录音再尝试校正。若校正模型无法加载，服务会在日志中提示并继续提供原流式识别，`doctor` 会报告缺失文件。
+
+每段最多保留 20 秒 PCM（约 625 KiB），仅存于内存，不保存录音文件、不上传。持续录音会在停顿或达到此上限时定稿并开始下一段；上限处硬分段可能影响边界词准确率。Esc、失焦或断开后仍丢弃未提交结果。校正增加少量处理时间，具体取决于录音长度和 CPU 负载；它不会改善流式模型本身的临时识别质量。
+
+关闭时将 `streaming_refine` 改回 `false` 并重启服务，即恢复原流式路径；无需卸载模型。此功能默认关闭，避免旧安装升级后新增下载或模型依赖。
 
 ## 升级
 

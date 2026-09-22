@@ -122,6 +122,17 @@ class SetupTests(unittest.TestCase):
             self.assertEqual(len(download), 1)
             self.assertIn('--no-punctuation', download[0])
 
+    def test_refinement_download_uses_custom_model_directory_before_start(self):
+        config = self.home / 'config/fcitx5-voice/config.toml'
+        config.parent.mkdir(parents=True)
+        config.write_text('streaming_refine=true\nmodel_dir="../refine model"\n')
+        self.assertEqual(self.exercise(['--service-only']), 0)
+        commands = [c for c in self.commands if 'download-model.py' in c[1]]
+        correction = next(c for c in commands if 'offline' in c)
+        self.assertIn(str(self.home / 'config/refine model'), correction)
+        self.assertLess(self.commands.index(correction),
+                        self.commands.index(['systemctl', '--user', 'restart', 'fcitx5-voice.service']))
+
     def test_dependency_failure_stops_before_user_install(self):
         self.assertEqual(self.exercise(fail=lambda c: 'apt-get' in c), 1)
         self.assertFalse((self.home / '.local/bin/fcitx5-voice').exists())

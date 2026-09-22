@@ -106,3 +106,11 @@ class DownloadModelTests(unittest.TestCase):
                     DOWNLOAD_MODEL.selected_manifests(DOWNLOAD_MODEL.parse_args(argv)),
                     expected,
                 )
+
+    def test_refinement_download_includes_sensevoice_even_without_punctuation(self):
+        for argv, expected in [
+            (['--with-refinement'], (STREAMING_MODEL, OFFLINE_MODEL, PUNCTUATION_MODEL)),
+            (['--with-refinement', '--no-punctuation'], (STREAMING_MODEL, OFFLINE_MODEL)),
+        ]:
+            with self.subTest(argv=argv):
+                self.assertEqual(DOWNLOAD_MODEL.selected_manifests(DOWNLOAD_MODEL.parse_args(argv)), expected)

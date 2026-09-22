@@ -27,14 +27,14 @@
   <meta name="twitter:title" content="LiltKey: Offline Voice Typing for Linux (Fcitx5)">
   <meta name="twitter:description" content="LiltKey is an offline voice typing tool for Linux and Fcitx5. Hold Ctrl+Alt to dictate Chinese and English with automatic punctuation. Free .deb for Ubuntu.">
   <meta name="twitter:image" content="https://tangzk.github.io/liltkey/assets/fcitx5-light-theme.png">
-  <link rel="stylesheet" href="styles.css?v=bilingual-2">
+  <link rel="stylesheet" href="styles.css?v=0.5.0">
   <link rel="stylesheet" href="motion.css?v=bilingual-2">
   <script src="app.js?v=bilingual-2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header wrap">
-    <a class="wordmark" href="#" aria-label="LiltKey home"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.4.0</span></a>
+    <a class="wordmark" href="#" aria-label="LiltKey home"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.5.0</span></a>
     <nav aria-label="Main"><a href="#features">Why LiltKey</a><a href="#guide">How to use</a><a class="lang-switch" href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a><a class="nav-cta" href="#install">Install <span aria-hidden="true">↗</span></a><button class="motion-toggle" id="motion-toggle" type="button" aria-label="Pause animations" title="Pause animations" hidden><svg class="motion-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="motion-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 9 6-9 6z" fill="currentColor"/></svg></button></nav>
   </header>
   <main id="main">
@@ -43,8 +43,8 @@
         <p class="eyebrow">YOUR VOICE, YOUR KEYBOARD.</p>
         <h1 id="hero-title">Offline voice typing<br><span>for Linux.</span></h1>
         <p class="hero-description">LiltKey is an offline voice typing tool for Linux and Fcitx5.<br>Hold Ctrl+Alt to talk, release to finish. Recognition runs on your machine.</p>
-        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb">Download .deb <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">See it in action <span aria-hidden="true">↓</span></a></div>
-        <p class="hero-update"><a href="#guide">New in v0.4.0: hold to record, release to finish <span aria-hidden="true">↗</span></a></p>
+        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb">Download .deb <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">See it in action <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-update"><a href="#research">New in v0.5.0: optional final correction · see the comparison <span aria-hidden="true">↗</span></a></p>
         <p class="platform-note">Built for Fcitx5 <span aria-hidden="true">/</span> Runs on your CPU <span aria-hidden="true">/</span> Chinese &amp; English <span aria-hidden="true">/</span> Package <code>fcitx5-voice</code></p>
       </div>
       <div class="demo-shell" id="demo" data-phase="pinyin">
@@ -93,20 +93,30 @@
       </article>
     </section>
 
+    <section class="section wrap research-section" id="research" aria-labelledby="research-title">
+      <div class="section-heading"><p class="eyebrow">TESTED ON A LOCAL CPU · 2026.09.22</p><h2 id="research-title">See words as you speak.<br>Refine before committing.</h2><p>After comparing six open-weight speech models, v0.5.0 adds an optional pairing:<br>Zipformer for streaming drafts, SenseVoice for final correction.</p></div>
+      <p class="research-intro">Qwen and Fun made fewer Chinese errors on these samples, but took about 1.6 seconds to process a full clip. SenseVoice took about 0.18 seconds and improved both Chinese and English recognition: a useful balance for responsive dictation on this machine.</p>
+      <div class="research-table-wrap" role="region" aria-label="Model comparison, horizontally scrollable" tabindex="0"><table class="research-table"><caption>i7-14700K · CPU, 4 threads · FLEURS: 40 Chinese and 20 English clips</caption><thead><tr><th scope="col">Model</th><th scope="col">Chinese errors ↓</th><th scope="col">English errors ↓</th><th scope="col">Median full-clip compute ↓</th></tr></thead><tbody><tr><th scope="row">Zipformer 2023</th><td>13.05%</td><td>76.20%</td><td>0.264 s</td></tr><tr><th scope="row">Paraformer</th><td>13.48%</td><td>35.24%</td><td>0.373 s</td></tr><tr><th scope="row">Zipformer-CTC 2025</th><td>10.17%</td><td>Not supported</td><td>0.473 s</td></tr><tr class="research-choice"><th scope="row">SenseVoiceSmall INT8</th><td>8.65%</td><td>6.86%</td><td>0.182 s</td></tr><tr><th scope="row">Fun-ASR-Nano-2512</th><td>7.64%</td><td>7.78%</td><td>1.557 s</td></tr><tr><th scope="row">Qwen3-ASR-0.6B</th><td>7.07%</td><td>5.03%</td><td>1.587 s</td></tr></tbody></table></div>
+      <p class="research-note">Chinese: character error rate (CER) after number normalization. English: word error rate (WER). Lower is better. Compute time covers the full clip; it is <strong>not the wait after key release</strong>. Runtime and precision details are in the full report.</p>
+      <div class="research-result"><h3>Correcting the final words</h3><p>In one Chinese clip, the draft “盖甲等元素” became the correct “钙钾等元素” before submission. Three product-flow replays finished about <strong>40–199 ms</strong> after stopping. This small sample excludes microphone and UI latency, retains trailing silence, and includes correction that may have started before stopping.</p></div>
+      <p class="research-note">These results describe one machine and 60 public read-speech clips, not every accent, noisy room or personal dictation. Refinement does not improve the live draft itself. Failures fall back to streaming recognition; text already committed is never rewritten.</p>
+      <div class="research-links"><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md#流式预览与快速定稿校正">Enable refinement (off by default; extra model required) ↗</a><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/research/2026-09-22-asr-model-evaluation.md">Full comparison and methods ↗</a></div>
+    </section>
+
     <section class="guide-section" id="guide" aria-labelledby="guide-title"><div class="wrap guide-layout">
       <div><p class="eyebrow">ONE SHORTCUT AWAY.</p><h2 id="guide-title">One shortcut,<br>a new way to write.</h2><p>Right in the text box you're already using.<br>The app needs to work with Fcitx5.</p><div class="shortcut"><kbd>Ctrl</kbd><span>+</span><kbd>Alt</kbd></div></div>
       <ol class="steps"><li><span class="step-number">01</span><div><h3>Hold, and start talking</h3><p>Put the cursor in a text box and hold Ctrl+Alt for about 300 ms to start recording. If you're still composing pinyin, finish or cancel it first.</p></div></li><li><span class="step-number">02</span><div><h3>Pause, and sentences form</h3><p>Interim text adjusts to context and is committed when you pause. While holding, you can keep recording and commit several sentences, with no default 30-second limit.</p></div></li><li><span class="step-number">03</span><div><h3>Release to wrap up</h3><p>Release Ctrl or Alt to stop and commit the last sentence. Press Esc to discard uncommitted text; sentences already written stay. You can also toggle recording with Ctrl+Alt+V, which records up to 30 seconds at a time by default.</p></div></li></ol>
     </div></section>
 
     <section class="section wrap install-section" id="install" aria-labelledby="install-title">
-      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">Let your next paragraph<br>start with your voice.</h2><p>Package 0.4.0 · Sets itself up after install.<br>Ubuntu 26.04 · amd64 (x86-64)<br>Requires Fcitx5 5.1.19 or newer.</p></div>
+      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">Let your next paragraph<br>start with your voice.</h2><p>Package 0.5.0 · Sets itself up after install.<br>Ubuntu 26.04 · amd64 (x86-64)<br>Requires Fcitx5 5.1.19 or newer.</p></div>
       <div class="installation">
         <div class="install-header"><h3>Install, and it sets itself up.</h3><span>MIT licensed · Free to use and modify</span></div>
         <p>Download the .deb and install it with the Software app. The light theme is bundled and enabled on first setup; existing custom themes and dark preferences are kept. The runtime, models and voice service are prepared automatically.</p>
-        <div class="install-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb">Download .deb <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.4.0">Release notes and checksums <span aria-hidden="true">↗</span></a></div>
+        <div class="install-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb">Download .deb <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.5.0">Release notes and checksums <span aria-hidden="true">↗</span></a></div>
         <p>Finish anything you're typing before you install. Installation sets Fcitx5 as the default input method and restarts it, keeping your existing pinyin and voice settings.</p>
         <div class="install-ready"><h4>First run</h4><p>Stay online while about 260 MiB of models and the required dependencies download automatically. When the notification <span lang="zh-CN">“语音输入已就绪”</span> (Voice input is ready) appears, log out and log back in.</p><p>In any text box that works with Fcitx5, hold <kbd>Ctrl</kbd> + <kbd>Alt</kbd> to start talking and release to finish.</p></div>
-        <details class="install-terminal"><summary>Or install from the terminal</summary><p>Open a terminal in the folder where you downloaded the package and run:</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="Copy install command">Copy</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.4.0_amd64.deb</code></pre></div></details>
+        <details class="install-terminal"><summary>Or install from the terminal</summary><p>Open a terminal in the folder where you downloaded the package and run:</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="Copy install command">Copy</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.5.0_amd64.deb</code></pre></div></details>
         <p class="install-note">The interface and detailed docs are currently in Chinese; the <a class="text-link" href="https://github.com/tangzk/liltkey#readme">README</a> is in English. For other distributions or ARM devices, see the <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/development.md#源码安装开发者">build-from-source guide</a> and verify it yourself. LiltKey is the product name; the command and config directory are still called <code>fcitx5-voice</code>.</p><span id="copy-status" class="sr-only" role="status" aria-live="polite"></span>
       </div>
     </section>
@@ -136,9 +146,9 @@
   "inLanguage": "en",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Ubuntu 26.04 (amd64)",
-  "softwareVersion": "0.4.0",
+  "softwareVersion": "0.5.0",
   "softwareRequirements": "Fcitx5 5.1.19 or newer",
-  "downloadUrl": "https://github.com/tangzk/liltkey/releases/download/v0.4.0/fcitx5-voice_0.4.0_amd64.deb",
+  "downloadUrl": "https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb",
   "license": "https://github.com/tangzk/liltkey/blob/main/LICENSE",
   "softwareHelp": "https://github.com/tangzk/liltkey",
   "offers": {

@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import importlib.util
 import json
+import logging
 import os
 import shutil
 import signal
@@ -27,6 +28,24 @@ def build_finalizer(config):
     return partial(finalize_text, punctuate=punctuate)
 
 
+def build_streaming(config):
+    from .streaming_recognizer import StreamingRecognizer
+    preview = StreamingRecognizer(config)
+    finalize = build_finalizer(config)
+    if config.streaming_refine:
+        from .recognizer import SenseVoiceRecognizer
+        from .refined_recognizer import RefinedStreamingRecognizer
+        try:
+            correct = SenseVoiceRecognizer(config)
+        except (OSError, RuntimeError, ValueError):
+            logging.getLogger(__name__).warning(
+                'SenseVoice 校正模型不可用，继续使用流式识别；'
+                '请运行 scripts/download-model.py --with-refinement 并检查 model_dir')
+        else:
+            return RefinedStreamingRecognizer(preview, correct, finalize), finalize_text
+    return preview, finalize
+
+
 def apply_overrides(config, backend=None, model_dir=None, streaming_model_dir=None):
     updates = {}
     if backend:
@@ -45,16 +64,14 @@ async def serve(config):
     from .audio import GStreamerCapture
     from .server import VoiceServer
     streaming = config.backend == 'streaming'
-    if streaming:
-        from .streaming_recognizer import StreamingRecognizer
-        recognizer_type = StreamingRecognizer
-    else:
-        from .recognizer import SenseVoiceRecognizer
-        recognizer_type = SenseVoiceRecognizer
     print(f'正在加载{"streaming" if streaming else "offline"}模型（不会启动麦克风）…',
           flush=True)
-    recognize = await asyncio.to_thread(recognizer_type, config)
-    finalize = await asyncio.to_thread(build_finalizer, config) if streaming else None
+    if streaming:
+        recognize, finalize = await asyncio.to_thread(build_streaming, config)
+    else:
+        from .recognizer import SenseVoiceRecognizer
+        recognize = await asyncio.to_thread(SenseVoiceRecognizer, config)
+        finalize = None
     server = VoiceServer(socket_path(),
                          lambda continuous=False: GStreamerCapture(
                              config.device, None if continuous else config.max_seconds,
@@ -100,12 +117,17 @@ def doctor(config):
     if config.backend == 'streaming' and config.punctuation:
         path = config.punctuation_model_dir / 'model.int8.onnx'
         check('标点模型', path.is_file(), path)
+    if config.backend == 'streaming' and config.streaming_refine:
+        for name in ('model.int8.onnx', 'tokens.txt'):
+            path = config.model_dir / name
+            check('SenseVoice 校正模型', path.is_file(), path)
     check('桌面运行目录', os.environ.get('XDG_RUNTIME_DIR'), os.environ.get('XDG_RUNTIME_DIR', '未设置'))
     print(f'配置文件：{config_path()}')
     print(f'后端：{config.backend}；CPU 线程：{config.threads}；语言：{config.language}；'
           f'录音上限：{config.max_seconds} 秒')
     if config.backend == 'streaming':
         print(f'自动标点：{"开启" if config.punctuation else "关闭"}')
+        print(f'SenseVoice 定稿校正：{"开启" if config.streaming_refine else "关闭"}')
     print('诊断未访问麦克风。')
     return 0 if all(checks) else 1
 
@@ -119,9 +141,7 @@ def transcribe(config, filename, repeats):
         pcm = wav.readframes(wav.getnframes())
     start = time.perf_counter()
     if config.backend == 'streaming':
-        from .streaming_recognizer import StreamingRecognizer
-        recognize = StreamingRecognizer(config)
-        finalize = build_finalizer(config)
+        recognize, finalize = build_streaming(config)
     else:
         from .recognizer import SenseVoiceRecognizer
         recognize = SenseVoiceRecognizer(config)

@@ -113,3 +113,21 @@
 @media (max-width: 480px) {
   .appearance { margin-top: 36px; padding-top: 32px; }
 }
+
+/* Model comparison: readable figures with contained overflow on small screens. */
+.research-section { border-top: 1px solid var(--line); scroll-margin-top: 32px; }
+.research-intro { max-width: 65em; color: var(--muted); margin-bottom: 28px; }
+.research-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.research-table { width: 100%; border-collapse: collapse; font-size: .875rem; font-variant-numeric: tabular-nums; }
+.research-table caption { text-align: left; padding: 18px 20px; color: var(--muted); background: var(--soft); }
+.research-table th, .research-table td { padding: 15px 20px; border-top: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.research-table th:first-child { text-align: left; }
+.research-table thead th { font-weight: 650; }
+.research-table tbody th { font-weight: 500; }
+.research-choice { background: var(--soft); }
+.research-choice th { color: var(--blue); }
+.research-note { margin-top: 18px; color: var(--muted); font-size: .875rem; max-width: 80em; }
+.research-result { padding: 24px; margin-top: 28px; border-left: 3px solid var(--blue); background: var(--soft); }
+.research-result h3 { margin: 0 0 10px; }
+.research-result p { margin: 0; }
+.research-links { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-top: 24px; font-size: .875rem; }

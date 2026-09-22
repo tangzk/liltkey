@@ -72,6 +72,8 @@ def parse_args(argv=None):
     parser.add_argument('--backend', choices=MODELS, default='streaming')
     parser.add_argument('--dest', type=Path)
     parser.add_argument('--base-url', help='覆盖下载站点；SHA256 校验保持不变')
+    parser.add_argument('--with-refinement', action='store_true',
+                        help='同时下载流式定稿校正使用的 SenseVoice 模型')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--punctuation-only', action='store_true')
     mode.add_argument('--no-punctuation', action='store_true')
@@ -83,9 +85,8 @@ def selected_manifests(args):
         return (PUNCTUATION_MODEL,)
     if args.backend == 'offline':
         return (OFFLINE_MODEL,)
-    if args.no_punctuation:
-        return (STREAMING_MODEL,)
-    return (STREAMING_MODEL, PUNCTUATION_MODEL)
+    manifests = (STREAMING_MODEL, OFFLINE_MODEL) if args.with_refinement else (STREAMING_MODEL,)
+    return manifests if args.no_punctuation else (*manifests, PUNCTUATION_MODEL)
 
 
 def main(argv=None):

@@ -115,6 +115,8 @@ def main(argv=None):
         else:
             run([*download, '--backend', 'streaming', '--no-punctuation',
                  '--dest', config.streaming_model_dir])
+            if config.streaming_refine:
+                run([*download, '--backend', 'offline', '--dest', config.model_dir])
             if config.punctuation:
                 run([*download, '--punctuation-only', '--dest', config.punctuation_model_dir])
 

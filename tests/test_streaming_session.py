@@ -215,3 +215,51 @@ class StreamingSessionTests(unittest.IsolatedAsyncioTestCase):
             release.set()
         await self.session.close()
         self.assertEqual([e['type'] for e in self.events], ['recording', 'cancelled'])
+
+    async def test_correction_result_is_dropped_when_cancelled_during_final_inference(self):
+        from fcitx5_voice.refined_recognizer import RefinedStreamingRecognizer
+        from test_refined_recognizer import Preview, BLOCK
+        entered, release = threading.Event(), threading.Event()
+
+        def correct(pcm):
+            entered.set()
+            release.wait(2)
+            return '取消后不能输入这段文字。'
+
+        self.session.recognize = RefinedStreamingRecognizer(Preview(), correct)
+        await self.session.start('old')
+        await self.capture.queue.put(BLOCK)
+        await self.session.stop('old')
+        try:
+            async with asyncio.timeout(1):
+                while not entered.is_set():
+                    await asyncio.sleep(0.001)
+            await asyncio.wait_for(self.session.cancel('old'), 0.2)
+        finally:
+            release.set()
+        await self.session.worker
+        self.assertEqual([e['type'] for e in self.events],
+                         ['recording', 'transcribing', 'cancelled'])
+
+    async def test_endpoint_correction_then_stop_commit_each_audio_segment_once(self):
+        from fcitx5_voice.refined_recognizer import RefinedStreamingRecognizer
+        from test_refined_recognizer import Preview, BLOCK
+        seen = []
+
+        def correct(pcm):
+            seen.append(pcm)
+            return '第一句。' if len(seen) == 1 else '第二句。'
+
+        self.session.recognize = RefinedStreamingRecognizer(
+            Preview([[('partial', '第一'), ('final', '错误草稿')], [('partial', '第二')]]), correct)
+        await self.session.start('a')
+        await self.capture.queue.put(BLOCK)
+        await self.wait_for('final')
+        self.assertTrue(self.capture.active)
+        second = b'\x00\x20' * 1600
+        await self.capture.queue.put(second)
+        await self.session.stop('a')
+        await self.wait_for('finished')
+        self.assertEqual(seen, [BLOCK, second])
+        self.assertEqual([(e['segment'], e['text']) for e in self.events if e['type'] == 'final'],
+                         [(1, '第一句。'), (2, '第二句。')])
