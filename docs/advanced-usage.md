@@ -25,7 +25,7 @@
 
 安装完成后会在当前桌面用户会话中自动初始化：创建独立 Python 运行环境，下载并校验中英流式语音和标点模型，写入默认配置，启用识别服务自启动，设置默认输入法为 Fcitx5 并重启输入法。请先结束正在输入的拼音预编辑。
 
-首次初始化需要联网下载依赖和约 260 MiB 模型。收到“语音输入已就绪”的桌面通知后即可长按 `Ctrl+Alt` 录音、松开结束，或使用 `Ctrl+Alt+V` 切换开始／结束，`Esc` 取消；默认开启自动标点，使用系统默认麦克风。首次安装或切换输入法后，请注销并重新登录，让所有应用加载输入法环境。
+首次初始化需要联网下载依赖和约 490 MiB 模型。收到“语音输入已就绪”的桌面通知后即可长按 `Ctrl+Alt` 录音、松开结束，或使用 `Ctrl+Alt+V` 切换开始／结束，`Esc` 取消；默认开启自动标点，使用系统默认麦克风。首次安装或切换输入法后，请注销并重新登录，让所有应用加载输入法环境。
 
 如果安装时没有图形桌面会话，首次登录桌面时会自动初始化。下载失败会每 5 分钟重试；关机或注销后，下次登录继续。安装包已装好与模型已就绪是两个阶段，模型尚未下载完成时不能识别。初始化成功后，后续登录不再重复安装。识别过程不需要联网。
 
@@ -49,7 +49,7 @@ deb 0.3.0-3 起附带 LiltKey 清透浅色主题。首次配置将原有默认�
 
 ```toml
 backend = "streaming"
-streaming_refine = false
+streaming_refine = true
 punctuation = true
 threads = 4
 max_seconds = 30
@@ -60,7 +60,7 @@ device = ""
 - `max_seconds` 为切换录音模式的时长上限（1–30 秒），不限制长按录音。长时间口述建议使用默认流式模式，音频逐块处理；离线模式在内存中保留整段音频，松键后按最多 30 秒分段识别并合并预览，分段边界可能影响识别质量。
 - `device` 为空时使用系统默认麦克风。运行 `fcitx5-voice devices` 查询音频设备；`pactl list short sources` 的 source 名称可用于 `device`。系统使用 PipeWire 时通过 PulseAudio 兼容服务采集。
 - `backend` 可选 `streaming`（默认，边说边显示并自动提交）或 `offline`（SenseVoice，结束录音后 Enter 提交）。
-- `streaming_refine` 默认为 `false`。设为 `true` 时保留流式草稿，在每段提交前用 SenseVoice 重识别该段音频；失败时保留原流式结果。参见下方开启步骤。
+- `streaming_refine` 默认为 `true`。开启时保留流式草稿，在每段提交前用 SenseVoice 重识别该段音频；失败时保留原流式结果。安装器会自动准备模型；旧配置省略此项时也默认开启，明确设置 `false` 时保持关闭。
 - `punctuation` 默认为 `true`，仅用于流式模式。设为 `false` 可关闭标点模型，空格规范化仍启用；SenseVoice（离线或定稿校正）自带标点，不再重复使用该标点模型。
 - `punctuation_model_dir` 指定标点模型目录，默认 `~/.local/share/fcitx5-voice/punct-ct-transformer-zh-en-int8`，遵守 `XDG_DATA_HOME`。
 - `streaming_model_dir` 指定流式模型目录，默认 `~/.local/share/fcitx5-voice/streaming-zipformer-bilingual-zh-en-2023-02-20`。`model_dir` 用于离线模式和流式定稿校正，默认 `~/.local/share/fcitx5-voice/sensevoice`。两个目录均遵守 `XDG_DATA_HOME`。
@@ -71,16 +71,18 @@ device = ""
 
 ## 流式预览与快速定稿校正
 
-在项目根目录先下载并校验 SenseVoice（已有模型会跳过下载）：
+v0.5.1 起默认开启，正常安装或升级会自动下载并校验 SenseVoice，无须额外操作。若旧配置明确设置了 `streaming_refine = false`，会保留关闭状态；要开启可按以下步骤操作。
+
+手动安装或补齐模型时，在项目根目录运行（已有模型会校验后跳过）：
 
 ```bash
-python3 scripts/download-model.py --with-refinement
+python3 scripts/download-model.py
 ```
 
 deb 安装用户无须检出源码，可改用以下命令准备模型（已有模型会校验后跳过）：
 
 ```bash
-fcitx5-voice-download-model --with-refinement
+fcitx5-voice-download-model
 ```
 
 然后在个人 `config.toml` 中设置：
@@ -96,7 +98,7 @@ streaming_refine = true
 
 每段最多保留 20 秒 PCM（约 625 KiB），仅存于内存，不保存录音文件、不上传。持续录音会在停顿或达到此上限时定稿并开始下一段；上限处硬分段可能影响边界词准确率。Esc、失焦或断开后仍丢弃未提交结果。校正增加少量处理时间，具体取决于录音长度和 CPU 负载；它不会改善流式模型本身的临时识别质量。
 
-关闭时将 `streaming_refine` 改回 `false` 并重启服务，即恢复原流式路径；无需卸载模型。此功能默认关闭，避免旧安装升级后新增下载或模型依赖。
+关闭时将 `streaming_refine` 改回 `false` 并重启服务，即恢复原流式路径；无需卸载模型。手动只准备原流式模型时可使用下载命令的 `--no-refinement` 选项。
 
 ## 升级
 

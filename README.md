@@ -14,24 +14,24 @@ Hold `Ctrl+Alt` to talk and release to finish; text appears at the cursor as you
 
 > The interface (status messages, notifications, setup prompts) and the detailed docs are currently in Chinese only.
 
-## New in v0.5.0
+## New in v0.5.1
 
-- Optional SenseVoice refinement keeps streaming drafts visible, then re-recognizes each segment before committing it at a pause or on release.
+- Default SenseVoice refinement keeps streaming drafts visible, then re-recognizes each segment before committing it at a pause or on release.
 - Correction failures fall back to streaming recognition; cancellation still discards uncommitted results. All recognition stays on your machine.
-- Refinement is **off by default** and needs an additional model. Existing shortcuts and settings are preserved. See [how to enable it](docs/advanced-usage.md#流式预览与快速定稿校正).
+- Refinement is **on by default**; setup automatically prepares the model. Explicitly disabled settings and existing shortcuts are preserved. See [configuration options](docs/advanced-usage.md#流式预览与快速定稿校正).
 - Read the [short model comparison](https://tangzk.github.io/liltkey/research/) for the CPU measurements behind this choice.
 
 ## Install
 
-For Ubuntu 26.04 (amd64). Download the [.deb package](https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb) and install it with the Software app, or run:
+For Ubuntu 26.04 (amd64). Download the [.deb package](https://github.com/tangzk/liltkey/releases/download/v0.5.1/fcitx5-voice_0.5.1_amd64.deb) and install it with the Software app, or run:
 
 ```bash
-sudo apt install ./fcitx5-voice_0.5.0_amd64.deb
+sudo apt install ./fcitx5-voice_0.5.1_amd64.deb
 ```
 
-The package includes a light theme that is enabled on first setup; existing custom themes, dark preferences and fonts are kept. Default configuration happens automatically after install, with no extra commands. On first run, stay online while about 260 MiB of models download, wait for the “语音输入已就绪” (Voice input is ready) notification, then log out and log back in.
+The package includes a light theme that is enabled on first setup; existing custom themes, dark preferences and fonts are kept. Default configuration happens automatically after install, with no extra commands. On first run, stay online while about 490 MiB of models download, wait for the “语音输入已就绪” (Voice input is ready) notification, then log out and log back in.
 
-Installation sets Fcitx5 as the default input method and restarts it, keeping your existing pinyin and voice settings. Finish anything you're typing first. Release notes and checksums are on [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.5.0).
+Installation sets Fcitx5 as the default input method and restarts it, keeping your existing pinyin and voice settings. Finish anything you're typing first. Release notes and checksums are on [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.5.1).
 
 ## Usage
 

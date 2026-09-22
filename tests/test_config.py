@@ -77,8 +77,9 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 self.load(f'punctuation={value}')
 
-    def test_streaming_refinement_is_explicit_and_strictly_boolean(self):
-        self.assertFalse(self.load('').streaming_refine)
+    def test_streaming_refinement_defaults_on_and_remains_strictly_boolean(self):
+        self.assertTrue(Config().streaming_refine)
+        self.assertTrue(self.load('').streaming_refine)
         self.assertTrue(self.load('streaming_refine=true').streaming_refine)
         self.assertFalse(self.load('streaming_refine=false').streaming_refine)
         for value in ['1', '"true"', '[]']:

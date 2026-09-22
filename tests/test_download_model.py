@@ -87,17 +87,19 @@ class DownloadModelTests(unittest.TestCase):
             self.assertEqual((destination / 'model.bin').read_bytes(), b'quantized model')
             self.assertEqual(sorted(path.name for path in destination.iterdir()), ['model.bin'])
 
-    def test_default_streaming_selection_includes_punctuation(self):
+    def test_default_streaming_selection_includes_refinement_and_punctuation(self):
         args = DOWNLOAD_MODEL.parse_args([])
         self.assertEqual(
             DOWNLOAD_MODEL.selected_manifests(args),
-            (STREAMING_MODEL, PUNCTUATION_MODEL),
+            (STREAMING_MODEL, OFFLINE_MODEL, PUNCTUATION_MODEL),
         )
 
     def test_offline_and_explicit_download_modes_preserve_expected_scope(self):
         cases = (
             (['--backend', 'offline'], (OFFLINE_MODEL,)),
-            (['--no-punctuation'], (STREAMING_MODEL,)),
+            (['--no-punctuation'], (STREAMING_MODEL, OFFLINE_MODEL)),
+            (['--no-refinement'], (STREAMING_MODEL, PUNCTUATION_MODEL)),
+            (['--no-refinement', '--no-punctuation'], (STREAMING_MODEL,)),
             (['--punctuation-only'], (PUNCTUATION_MODEL,)),
         )
         for argv, expected in cases:

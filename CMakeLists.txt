@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(fcitx5_voice VERSION 0.5.0 LANGUAGES CXX)
+project(fcitx5_voice VERSION 0.5.1 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 

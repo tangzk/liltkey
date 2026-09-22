@@ -108,7 +108,7 @@ def main():
             temporary.unlink(missing_ok=True)
         files.append(str(plugin))
         addon = (ROOT / 'plugin/voiceinput.conf.in').read_text()
-        addon = addon.replace('@PROJECT_VERSION@', '0.5.0')
+        addon = addon.replace('@PROJECT_VERSION@', '0.5.1')
         addon = '\n'.join('Library=' + str(plugin.with_suffix('')) if line.startswith('Library=') else line
                           for line in addon.splitlines()) + '\n'
         write(data / 'fcitx5/addon/voiceinput.conf', addon)

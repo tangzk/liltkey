@@ -113,7 +113,7 @@ def main(argv=None):
         if config.backend == 'offline':
             run([*download, '--backend', 'offline', '--dest', config.model_dir])
         else:
-            run([*download, '--backend', 'streaming', '--no-punctuation',
+            run([*download, '--backend', 'streaming', '--no-punctuation', '--no-refinement',
                  '--dest', config.streaming_model_dir])
             if config.streaming_refine:
                 run([*download, '--backend', 'offline', '--dest', config.model_dir])

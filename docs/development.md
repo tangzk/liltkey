@@ -66,6 +66,6 @@ systemctl --user daemon-reload
 
 ## 流式定稿校正
 
-`streaming_refine = true` 时，`RefinedStreamingRecognizer` 包装原流式识别器；协议仍为版本 2，插件无需更改。每段 PCM 在端点、20 秒上限或松键时送入 SenseVoice。已提交音频块的预读状态随旧流式 decoder 一起丢弃，下一段从新的 native stream 开始，避免同一音频被重复定稿。单段缓冲上限为 640,000 字节；捕获队列仍有原来的两秒容量限制。
+`streaming_refine` 默认 `true`，开启时，`RefinedStreamingRecognizer` 包装原流式识别器；协议仍为版本 2，插件无需更改。每段 PCM 在端点、20 秒上限或松键时送入 SenseVoice。已提交音频块的预读状态随旧流式 decoder 一起丢弃，下一段从新的 native stream 开始，避免同一音频被重复定稿。单段缓冲上限为 640,000 字节；捕获队列仍有原来的两秒容量限制。
 
 成功校正只做文本/空格规范化，使用 SenseVoice 自带标点；无效结果或推理异常回退至流式结果。`StreamingSession` 在工作线程返回后再次校验会话状态，所以取消或失焦后的校正不能产生迟到提交。测试覆盖音频分段边界、无预览定稿、持续录音上限、取消、加载失败和下载配置。校正只在原协议的 final 提交前发生。

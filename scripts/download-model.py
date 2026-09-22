@@ -72,8 +72,11 @@ def parse_args(argv=None):
     parser.add_argument('--backend', choices=MODELS, default='streaming')
     parser.add_argument('--dest', type=Path)
     parser.add_argument('--base-url', help='覆盖下载站点；SHA256 校验保持不变')
-    parser.add_argument('--with-refinement', action='store_true',
-                        help='同时下载流式定稿校正使用的 SenseVoice 模型')
+    refinement = parser.add_mutually_exclusive_group()
+    refinement.add_argument('--with-refinement', action='store_true', default=True,
+                            help='同时下载 SenseVoice 定稿校正模型（默认开启）')
+    refinement.add_argument('--no-refinement', dest='with_refinement', action='store_false',
+                            help='不下载 SenseVoice 定稿校正模型')
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--punctuation-only', action='store_true')
     mode.add_argument('--no-punctuation', action='store_true')

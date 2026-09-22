@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_VERSION = '0.5.0'
+PACKAGE_VERSION = '0.5.1'
 
 
 def main():
@@ -38,7 +38,7 @@ def main():
 
         copy(args.plugin, f'usr/lib/{multiarch}/fcitx5/voiceinput.so')
         addon = ((ROOT / 'plugin/voiceinput.conf.in').read_text()
-                 .replace('@PROJECT_VERSION@', '0.5.0').replace('@VOICEINPUT_LIBRARY@', 'voiceinput'))
+                 .replace('@PROJECT_VERSION@', '0.5.1').replace('@VOICEINPUT_LIBRARY@', 'voiceinput'))
         write('usr/share/fcitx5/addon/voiceinput.conf', addon)
         package_root = stage / 'usr/share/fcitx5-voice'
         for directory in ['src', 'scripts']:

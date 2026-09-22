@@ -101,7 +101,7 @@ class InstallTests(unittest.TestCase):
             addon = configparser.ConfigParser()
             addon.read(stage/'usr/share/fcitx5/addon/voiceinput.conf')
             self.assertEqual(addon['Addon']['Library'], 'voiceinput')
-            self.assertEqual(addon['Addon']['Version'], '0.5.0')
+            self.assertEqual(addon['Addon']['Version'], '0.5.1')
             self.assertTrue((stage/'usr/share/fcitx5-voice/src/fcitx5_voice/server.py').is_file())
             for relative in ('usr/share/fcitx5/themes/liltkey-light',
                              'usr/share/fcitx5-voice/themes/liltkey-light'):

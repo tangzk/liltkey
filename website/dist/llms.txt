@@ -5,9 +5,9 @@
 > LiltKey 是一款为 Linux Fcitx5 打造的本地离线语音输入法。按住 Ctrl+Alt 说话，松开结束，边说边在光标处输入，支持中英混合听写和停顿自动加标点。识别在本机 CPU 上完成，不上传录音。
 
 - Product name: LiltKey. The package, command and config directory are named `fcitx5-voice` (config: `~/.config/fcitx5-voice/config.toml`).
-- Current version: 0.5.0, distributed as a `.deb` for Ubuntu 26.04 (amd64), requires Fcitx5 5.1.19 or newer.
+- Current version: 0.5.1, distributed as a `.deb` for Ubuntu 26.04 (amd64), requires Fcitx5 5.1.19 or newer.
 - License: original code is MIT; dependencies and pretrained models keep their own licenses.
-- Runs on sherpa-onnx: a bilingual Chinese–English Streaming Zipformer model for default streaming recognition, a CT-Transformer model for punctuation, and SenseVoiceSmall for optional final correction or offline preview. Streaming refinement is off by default and requires an extra model. About 260 MiB of models are downloaded on first setup, after which dictation works offline.
+- Runs on sherpa-onnx: a bilingual Chinese–English Streaming Zipformer model for default streaming recognition, a CT-Transformer model for punctuation, and SenseVoiceSmall for default final correction or an optional offline preview mode. Setup automatically prepares the refinement model; an explicit streaming_refine=false setting is preserved. About 490 MiB of models are downloaded on first setup, after which dictation works offline.
 - Ships a light Fcitx5 theme enabled on first setup; existing custom themes, dark preferences and fonts are preserved.
 - The interface (status messages, notifications, setup prompts) and the detailed docs are currently in Chinese only; the README is available in English. Dictation works in both Chinese and English.
 - Existing pinyin input keeps working. Voice input is disabled in password and sensitive fields.
@@ -29,8 +29,8 @@
 
 ## Download
 
-- [v0.5.0 .deb (amd64)](https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb)
-- [Release notes and checksums](https://github.com/tangzk/liltkey/releases/tag/v0.5.0)
+- [v0.5.1 .deb (amd64)](https://github.com/tangzk/liltkey/releases/download/v0.5.1/fcitx5-voice_0.5.1_amd64.deb)
+- [Release notes and checksums](https://github.com/tangzk/liltkey/releases/tag/v0.5.1)
 
 ## Optional
 

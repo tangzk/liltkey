@@ -64,7 +64,9 @@ class SetupTests(unittest.TestCase):
         self.assertIn('backend = "streaming"', config.read_text())
         self.assertTrue((self.home / 'data/fcitx5/addon/voiceinput.conf').is_file())
         download = [c for c in self.commands if 'download-model.py' in c[1]]
-        self.assertEqual(len(download), 2)
+        self.assertEqual(len(download), 3)
+        self.assertIn('streaming_refine = true', config.read_text())
+        self.assertTrue(any('offline' in c for c in download))
         enable = ['systemctl', '--user', 'enable', 'fcitx5-voice.service']
         restart = ['systemctl', '--user', 'restart', 'fcitx5-voice.service']
         self.assertGreater(self.commands.index(enable), self.commands.index(download[-1]))
@@ -119,8 +121,10 @@ class SetupTests(unittest.TestCase):
             self.assertEqual(config.read_text(), content)
             self.assertFalse(any(c[0] in {'sudo', 'cmake'} for c in self.commands))
             download = [c for c in self.commands if 'download-model.py' in c[1]]
-            self.assertEqual(len(download), 1)
+            self.assertEqual(len(download), 2)
             self.assertIn('--no-punctuation', download[0])
+            self.assertIn('--no-refinement', download[0])
+            self.assertIn('offline', download[1])
 
     def test_refinement_download_uses_custom_model_directory_before_start(self):
         config = self.home / 'config/fcitx5-voice/config.toml'
@@ -132,6 +136,18 @@ class SetupTests(unittest.TestCase):
         self.assertIn(str(self.home / 'config/refine model'), correction)
         self.assertLess(self.commands.index(correction),
                         self.commands.index(['systemctl', '--user', 'restart', 'fcitx5-voice.service']))
+
+    def test_explicitly_disabled_refinement_is_preserved_without_sensevoice_download(self):
+        config = self.home / 'config/fcitx5-voice/config.toml'
+        config.parent.mkdir(parents=True)
+        content = 'streaming_refine=false\n'
+        config.write_text(content)
+        self.assertEqual(self.exercise(['--service-only']), 0)
+        self.assertEqual(config.read_text(), content)
+        commands = [c for c in self.commands if 'download-model.py' in c[1]]
+        self.assertEqual(len(commands), 2)
+        self.assertFalse(any('offline' in c for c in commands))
+        self.assertIn('--no-refinement', commands[0])
 
     def test_dependency_failure_stops_before_user_install(self):
         self.assertEqual(self.exercise(fail=lambda c: 'apt-get' in c), 1)

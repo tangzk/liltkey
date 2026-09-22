@@ -11,7 +11,7 @@ class RefinementLoadingTests(unittest.TestCase):
         with patch('fcitx5_voice.streaming_recognizer.StreamingRecognizer', return_value=Preview()), \
              patch('fcitx5_voice.recognizer.SenseVoiceRecognizer', return_value=lambda pcm: '你好。'), \
              patch('fcitx5_voice.cli.build_finalizer', return_value=lambda text: text + '！'):
-            model, finalize = build_streaming(Config(streaming_refine=True))
+            model, finalize = build_streaming(Config())
             decoder = model.create_decoder()
             decoder.accept(BLOCK)
             self.assertEqual([finalize(text) for _, text in decoder.finish()], ['你好。'])

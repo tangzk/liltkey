@@ -24,7 +24,7 @@ def socket_path():
 @dataclass(frozen=True)
 class Config:
     backend: str = 'streaming'
-    streaming_refine: bool = False
+    streaming_refine: bool = True
     model_dir: Path = field(default_factory=lambda: data_dir() / 'sensevoice')
     streaming_model_dir: Path = field(default_factory=lambda: data_dir() /
                                       'streaming-zipformer-bilingual-zh-en-2023-02-20')
@@ -54,7 +54,7 @@ def load_config(path=None, backend=None):
             raise ValueError(f'{key} 必须是 {minimum}～{maximum} 之间的整数')
     if type(data.get('punctuation', True)) is not bool:
         raise ValueError('punctuation 必须是 true/false')
-    if type(data.get('streaming_refine', False)) is not bool:
+    if type(data.get('streaming_refine', True)) is not bool:
         raise ValueError('streaming_refine 必须是 true/false')
     for key in ['backend', 'model_dir', 'streaming_model_dir', 'punctuation_model_dir', 'device', 'language']:
         if key in data and not isinstance(data[key], str):

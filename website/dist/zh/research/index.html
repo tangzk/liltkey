@@ -24,18 +24,18 @@
 <body class="research-page">
   <a class="skip-link" href="#main">跳至正文</a>
   <header class="site-header wrap">
-    <a class="wordmark" href="../" aria-label="LiltKey"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.5.0</span></a>
+    <a class="wordmark" href="../" aria-label="LiltKey"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.5.1</span></a>
     <nav aria-label="主导航"><a href="../">返回首页</a><a class="lang-switch" href="../../research/" hreflang="en" lang="en">EN</a><a class="nav-cta" href="../#install">开始安装 ↗</a></nav>
   </header>
   <main id="main">
     <article class="section wrap research-section" id="research" aria-labelledby="research-title">
-      <div class="section-heading"><p class="eyebrow">TESTED ON A LOCAL CPU · 2026.09.22</p><h1 id="research-title">边说边看见，<br>定稿再校正。</h1><p>比较 6 款开放权重语音模型后，我们为 v0.5.0 加入了可选方案：<br>保留 Zipformer 流式预览，用 SenseVoice 在提交前校正。</p></div>
+      <div class="section-heading"><p class="eyebrow">TESTED ON A LOCAL CPU · 2026.09.22</p><h1 id="research-title">边说边看见，<br>定稿再校正。</h1><p>比较 6 款开放权重语音模型后，我们为 v0.5.1 默认采用这套方案：<br>保留 Zipformer 流式预览，用 SenseVoice 在提交前校正。</p></div>
       <p class="research-intro">Qwen 与 Fun 在这批中文样本上错误更少，但整句计算约需 1.6 秒。SenseVoice 约需 0.18 秒，同时改善了中英文识别，适合这台电脑上“边说边出字、松键后尽快完成”的取舍。</p>
       <div class="research-table-wrap" role="region" aria-label="模型对比，可横向滚动" tabindex="0"><table class="research-table"><caption>i7-14700K · CPU 4 线程 · FLEURS 40 段中文、20 段英文</caption><thead><tr><th scope="col">模型</th><th scope="col">中文错误率 ↓</th><th scope="col">英文错误率 ↓</th><th scope="col">整句计算中位数 ↓</th></tr></thead><tbody><tr><th scope="row">Zipformer 2023</th><td>13.05%</td><td>76.20%</td><td>0.264 s</td></tr><tr><th scope="row">Paraformer</th><td>13.48%</td><td>35.24%</td><td>0.373 s</td></tr><tr><th scope="row">Zipformer-CTC 2025</th><td>10.17%</td><td>不支持</td><td>0.473 s</td></tr><tr class="research-choice"><th scope="row">SenseVoiceSmall INT8</th><td>8.65%</td><td>6.86%</td><td>0.182 s</td></tr><tr><th scope="row">Fun-ASR-Nano-2512</th><td>7.64%</td><td>7.78%</td><td>1.557 s</td></tr><tr><th scope="row">Qwen3-ASR-0.6B</th><td>7.07%</td><td>5.03%</td><td>1.587 s</td></tr></tbody></table></div>
       <p class="research-note">中文为数字归一化后的字错误率（CER），英文为词错误率（WER）；越低越好。计算时间针对完整音频，<strong>不是松键等待时间</strong>；模型运行时与精度见完整记录。</p>
       <div class="research-result"><h3>从“盖甲”到“钙钾”</h3><p>同一段录音中，草稿里的“盖甲等元素”在定稿时变为“钙钾等元素”。三个产品流程回放场景停止后约 <strong>40–199 毫秒</strong>完成；仅为小样本，不含麦克风和界面延迟，保留录音尾部静音，部分校正在停止前已开始。</p></div>
       <p class="research-note">结果仅代表这台电脑和这 60 段公开朗读录音，不代表所有口音、噪声或个人口述。校正不会改善临时预览本身；失败时回退到流式识别，已提交正文不会再改写。</p>
-      <div class="research-links"><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md#流式预览与快速定稿校正">开启定稿校正（默认关闭，需额外模型） ↗</a><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/research/2026-09-22-asr-model-evaluation.md">完整对比与测试方法 ↗</a></div>
+      <div class="research-links"><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md#流式预览与快速定稿校正">定稿校正设置（默认开启） ↗</a><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/research/2026-09-22-asr-model-evaluation.md">完整对比与测试方法 ↗</a></div>
     </article>
 
   </main>

@@ -12,24 +12,24 @@
 
 *Fcitx5 真实候选框截图，使用 X11 测试文本框；语音状态沿用同一主题。*
 
-## v0.5.0 新功能
+## v0.5.1 新功能
 
-- 可选 SenseVoice 定稿校正：保留边说边出的流式草稿，在停顿或松键提交前，重新识别该段音频。
+- 默认开启 SenseVoice 定稿校正：保留边说边出的流式草稿，在停顿或松键提交前，重新识别该段音频。
 - 校正失败自动回退到流式识别；取消后不提交迟到结果，全部识别仍在本机完成。
-- 校正功能**默认关闭**，需额外准备模型，保留原有快捷键与配置。参见[开启方法](docs/advanced-usage.md#流式预览与快速定稿校正)。
+- 校正功能**默认开启**，安装时自动准备模型；保留明确关闭校正的设置和原有快捷键。参见[配置方法](docs/advanced-usage.md#流式预览与快速定稿校正)。
 - 宣传页新增[模型对比简报](https://tangzk.github.io/liltkey/zh/research/)，说明本次 CPU 测试与方案选择。
 
 ## 安装
 
-适用于 Ubuntu 26.04（amd64）。下载 [deb 安装包](https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb)后，用软件中心安装，或运行：
+适用于 Ubuntu 26.04（amd64）。下载 [deb 安装包](https://github.com/tangzk/liltkey/releases/download/v0.5.1/fcitx5-voice_0.5.1_amd64.deb)后，用软件中心安装，或运行：
 
 ```bash
-sudo apt install ./fcitx5-voice_0.5.0_amd64.deb
+sudo apt install ./fcitx5-voice_0.5.1_amd64.deb
 ```
 
-安装包已包含清透浅色主题，首次配置默认启用；已有自定义主题、深色偏好和字体会保留。安装后自动完成默认配置，无须其他命令。首次请保持联网，等待约 260 MiB 模型下载完成并收到“语音输入已就绪”通知，然后注销并重新登录。
+安装包已包含清透浅色主题，首次配置默认启用；已有自定义主题、深色偏好和字体会保留。安装后自动完成默认配置，无须其他命令。首次请保持联网，等待约 490 MiB 模型下载完成并收到“语音输入已就绪”通知，然后注销并重新登录。
 
-安装会将默认输入法配置为 Fcitx5 并重启输入法，保留已有拼音和语音配置。请先完成正在输入的内容。版本说明与校验文件见 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.5.0)。
+安装会将默认输入法配置为 Fcitx5 并重启输入法，保留已有拼音和语音配置。请先完成正在输入的内容。版本说明与校验文件见 [GitHub Releases](https://github.com/tangzk/liltkey/releases/tag/v0.5.1)。
 
 ## 开始使用
 

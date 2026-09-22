@@ -32,7 +32,7 @@
 <body>
   <a class="skip-link" href="#main">跳至正文</a>
   <header class="site-header wrap">
-    <a class="wordmark" href="#" aria-label="LiltKey 首页"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.5.0</span></a>
+    <a class="wordmark" href="#" aria-label="LiltKey 首页"><span class="brand-icon" aria-hidden="true">lk</span>LiltKey<span class="version">v0.5.1</span></a>
     <nav aria-label="主导航"><a href="#features">为什么 LiltKey</a><a href="#guide">使用指南</a><a class="lang-switch" href="../" hreflang="en" lang="en">EN</a><a class="nav-cta" href="#install">开始安装 <span aria-hidden="true">↗</span></a><button class="motion-toggle" id="motion-toggle" type="button" aria-label="暂停页面动效" title="暂停页面动效" hidden><svg class="motion-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5v10M13 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="motion-play" viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 9 6-9 6z" fill="currentColor"/></svg></button></nav>
   </header>
   <main id="main">
@@ -41,8 +41,8 @@
         <p class="eyebrow">YOUR VOICE, YOUR KEYBOARD.</p>
         <h1 id="hero-title">以声为键，<br><span>开口成文。</span></h1>
         <p class="hero-description">LiltKey 是为 Linux Fcitx5 打造的本地离线语音输入法。<br>按住 Ctrl+Alt 说话，松开结束。识别在本机完成。</p>
-        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">看看输入过程 <span aria-hidden="true">↓</span></a></div>
-        <p class="hero-update" id="research"><a href="research/">v0.5.0：可选定稿校正（默认关闭） · 查看模型对比 <span aria-hidden="true">↗</span></a></p>
+        <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.1/fcitx5-voice_0.5.1_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">看看输入过程 <span aria-hidden="true">↓</span></a></div>
+        <p class="hero-update" id="research"><a href="research/">v0.5.1：定稿校正默认开启 · 查看模型对比 <span aria-hidden="true">↗</span></a></p>
         <p class="platform-note">为 Fcitx5 打造 <span aria-hidden="true">/</span> 本地 CPU 识别 <span aria-hidden="true">/</span> 中文 & English <span aria-hidden="true">/</span> 软件包 <code>fcitx5-voice</code></p>
       </div>
       <div class="demo-shell" id="demo" data-phase="pinyin">
@@ -97,14 +97,14 @@
     </div></section>
 
     <section class="section wrap install-section" id="install" aria-labelledby="install-title">
-      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">让下一段文字，<br>从开口开始。</h2><p>安装包 0.5.0 · 安装后自动配置。<br>Ubuntu 26.04 · amd64（x86-64）<br>需要 Fcitx5 5.1.19 或更新版本。</p></div>
+      <div class="section-heading"><p class="eyebrow">MAKE ROOM FOR YOUR VOICE.</p><h2 id="install-title">让下一段文字，<br>从开口开始。</h2><p>安装包 0.5.1 · 安装后自动配置。<br>Ubuntu 26.04 · amd64（x86-64）<br>需要 Fcitx5 5.1.19 或更新版本。</p></div>
       <div class="installation">
         <div class="install-header"><h3>安装后，自动配置。</h3><span>MIT 许可 · 自由使用与修改</span></div>
         <p>下载 .deb，用软件中心打开并安装。已内置清透浅色主题，首次配置默认启用；已有自定义主题与深色偏好会保留。运行环境、模型和语音服务会自动准备。</p>
-        <div class="install-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.5.0">版本说明与校验文件 <span aria-hidden="true">↗</span></a></div>
+        <div class="install-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.1/fcitx5-voice_0.5.1_amd64.deb">下载 .deb 安装包 <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/tangzk/liltkey/releases/tag/v0.5.1">版本说明与校验文件 <span aria-hidden="true">↗</span></a></div>
         <p>安装前请先完成正在输入的内容。安装会将默认输入法设为 Fcitx5 并重启，保留已有拼音和语音配置。</p>
-        <div class="install-ready"><h4>首次使用提示</h4><p>保持联网，自动下载约 260 MiB 模型并安装所需依赖。收到“语音输入已就绪”通知后，注销并重新登录。</p><p>在接入 Fcitx5 的文本框中，长按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> 即可开始说话，松开结束。</p></div>
-        <details class="install-terminal"><summary>也可以使用终端安装</summary><p>在安装包所在的下载目录打开终端，运行：</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="复制安装命令">复制</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.5.0_amd64.deb</code></pre></div></details>
+        <div class="install-ready"><h4>首次使用提示</h4><p>保持联网，自动下载约 490 MiB 模型并安装所需依赖。收到“语音输入已就绪”通知后，注销并重新登录。</p><p>在接入 Fcitx5 的文本框中，长按 <kbd>Ctrl</kbd> + <kbd>Alt</kbd> 即可开始说话，松开结束。</p></div>
+        <details class="install-terminal"><summary>也可以使用终端安装</summary><p>在安装包所在的下载目录打开终端，运行：</p><div class="code-box"><button class="copy-button" type="button" data-copy="deb-code" aria-label="复制安装命令">复制</button><pre><code id="deb-code">sudo apt install ./fcitx5-voice_0.5.1_amd64.deb</code></pre></div></details>
         <p class="install-note">其他系统或 ARM 设备请参考 <a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/development.md#源码安装开发者">源码安装指南</a> 并自行验证。LiltKey 是产品名称；命令和配置目录沿用 <code>fcitx5-voice</code>。</p><span id="copy-status" class="sr-only" role="status" aria-live="polite"></span>
       </div>
     </section>
@@ -132,9 +132,9 @@
   "url": "https://tangzk.github.io/liltkey/zh/",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Ubuntu 26.04 (amd64)",
-  "softwareVersion": "0.5.0",
+  "softwareVersion": "0.5.1",
   "softwareRequirements": "Fcitx5 5.1.19 或更新版本",
-  "downloadUrl": "https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb",
+  "downloadUrl": "https://github.com/tangzk/liltkey/releases/download/v0.5.1/fcitx5-voice_0.5.1_amd64.deb",
   "license": "https://github.com/tangzk/liltkey/blob/main/LICENSE",
   "softwareHelp": "https://github.com/tangzk/liltkey",
   "offers": {

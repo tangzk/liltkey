@@ -1,9 +1,9 @@
 # 默认使用流式中英双语模型；offline 保留 SenseVoice 兼容模式。
 backend = "streaming"
-# 可选：用 SenseVoice 在每段提交前校正，保留边说边出字；默认关闭以兼容现有安装。
-# 首次开启前运行 scripts/download-model.py --with-refinement。
+# 默认用 SenseVoice 在每段提交前校正，保留边说边出字。
+# 安装器会自动准备模型；手动安装时运行 scripts/download-model.py。
 # 校正失败时保留流式结果。每段音频仅在内存保留，最多 20 秒。
-streaming_refine = false
+streaming_refine = true
 # 流式定稿自动补标点；false 仅关闭标点模型，空格规范化仍启用。
 punctuation = true
 # punctuation_model_dir = "/absolute/path/to/punct-ct-transformer-zh-en-int8"
