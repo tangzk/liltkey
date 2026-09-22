@@ -27,7 +27,7 @@
   <meta name="twitter:title" content="LiltKey: Offline Voice Typing for Linux (Fcitx5)">
   <meta name="twitter:description" content="LiltKey is an offline voice typing tool for Linux and Fcitx5. Hold Ctrl+Alt to dictate Chinese and English with automatic punctuation. Free .deb for Ubuntu.">
   <meta name="twitter:image" content="https://tangzk.github.io/liltkey/assets/fcitx5-light-theme.png">
-  <link rel="stylesheet" href="styles.css?v=0.5.0">
+  <link rel="stylesheet" href="styles.css?v=research-page-1">
   <link rel="stylesheet" href="motion.css?v=bilingual-2">
   <script src="app.js?v=bilingual-2" defer></script>
 </head>
@@ -44,7 +44,7 @@
         <h1 id="hero-title">Offline voice typing<br><span>for Linux.</span></h1>
         <p class="hero-description">LiltKey is an offline voice typing tool for Linux and Fcitx5.<br>Hold Ctrl+Alt to talk, release to finish. Recognition runs on your machine.</p>
         <div class="hero-actions"><a class="button primary" href="https://github.com/tangzk/liltkey/releases/download/v0.5.0/fcitx5-voice_0.5.0_amd64.deb">Download .deb <span aria-hidden="true">↓</span></a><a class="text-link" href="#demo">See it in action <span aria-hidden="true">↓</span></a></div>
-        <p class="hero-update"><a href="#research">New in v0.5.0: optional final correction · see the comparison <span aria-hidden="true">↗</span></a></p>
+        <p class="hero-update" id="research"><a href="research/">v0.5.0: optional final correction (off by default) · model comparison <span aria-hidden="true">↗</span></a></p>
         <p class="platform-note">Built for Fcitx5 <span aria-hidden="true">/</span> Runs on your CPU <span aria-hidden="true">/</span> Chinese &amp; English <span aria-hidden="true">/</span> Package <code>fcitx5-voice</code></p>
       </div>
       <div class="demo-shell" id="demo" data-phase="pinyin">
@@ -91,16 +91,6 @@
           <figcaption><span>Real Fcitx5 UI · X11 test text box</span><a href="assets/fcitx5-light-theme.png" target="_blank" rel="noopener">View full size <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></figcaption>
         </figure>
       </article>
-    </section>
-
-    <section class="section wrap research-section" id="research" aria-labelledby="research-title">
-      <div class="section-heading"><p class="eyebrow">TESTED ON A LOCAL CPU · 2026.09.22</p><h2 id="research-title">See words as you speak.<br>Refine before committing.</h2><p>After comparing six open-weight speech models, v0.5.0 adds an optional pairing:<br>Zipformer for streaming drafts, SenseVoice for final correction.</p></div>
-      <p class="research-intro">Qwen and Fun made fewer Chinese errors on these samples, but took about 1.6 seconds to process a full clip. SenseVoice took about 0.18 seconds and improved both Chinese and English recognition: a useful balance for responsive dictation on this machine.</p>
-      <div class="research-table-wrap" role="region" aria-label="Model comparison, horizontally scrollable" tabindex="0"><table class="research-table"><caption>i7-14700K · CPU, 4 threads · FLEURS: 40 Chinese and 20 English clips</caption><thead><tr><th scope="col">Model</th><th scope="col">Chinese errors ↓</th><th scope="col">English errors ↓</th><th scope="col">Median full-clip compute ↓</th></tr></thead><tbody><tr><th scope="row">Zipformer 2023</th><td>13.05%</td><td>76.20%</td><td>0.264 s</td></tr><tr><th scope="row">Paraformer</th><td>13.48%</td><td>35.24%</td><td>0.373 s</td></tr><tr><th scope="row">Zipformer-CTC 2025</th><td>10.17%</td><td>Not supported</td><td>0.473 s</td></tr><tr class="research-choice"><th scope="row">SenseVoiceSmall INT8</th><td>8.65%</td><td>6.86%</td><td>0.182 s</td></tr><tr><th scope="row">Fun-ASR-Nano-2512</th><td>7.64%</td><td>7.78%</td><td>1.557 s</td></tr><tr><th scope="row">Qwen3-ASR-0.6B</th><td>7.07%</td><td>5.03%</td><td>1.587 s</td></tr></tbody></table></div>
-      <p class="research-note">Chinese: character error rate (CER) after number normalization. English: word error rate (WER). Lower is better. Compute time covers the full clip; it is <strong>not the wait after key release</strong>. Runtime and precision details are in the full report.</p>
-      <div class="research-result"><h3>Correcting the final words</h3><p>In one Chinese clip, the draft “盖甲等元素” became the correct “钙钾等元素” before submission. Three product-flow replays finished about <strong>40–199 ms</strong> after stopping. This small sample excludes microphone and UI latency, retains trailing silence, and includes correction that may have started before stopping.</p></div>
-      <p class="research-note">These results describe one machine and 60 public read-speech clips, not every accent, noisy room or personal dictation. Refinement does not improve the live draft itself. Failures fall back to streaming recognition; text already committed is never rewritten.</p>
-      <div class="research-links"><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/advanced-usage.md#流式预览与快速定稿校正">Enable refinement (off by default; extra model required) ↗</a><a class="text-link" href="https://github.com/tangzk/liltkey/blob/main/docs/research/2026-09-22-asr-model-evaluation.md">Full comparison and methods ↗</a></div>
     </section>
 
     <section class="guide-section" id="guide" aria-labelledby="guide-title"><div class="wrap guide-layout">

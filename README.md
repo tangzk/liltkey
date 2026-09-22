@@ -19,7 +19,7 @@ Hold `Ctrl+Alt` to talk and release to finish; text appears at the cursor as you
 - Optional SenseVoice refinement keeps streaming drafts visible, then re-recognizes each segment before committing it at a pause or on release.
 - Correction failures fall back to streaming recognition; cancellation still discards uncommitted results. All recognition stays on your machine.
 - Refinement is **off by default** and needs an additional model. Existing shortcuts and settings are preserved. See [how to enable it](docs/advanced-usage.md#流式预览与快速定稿校正).
-- Read the [short model comparison](https://tangzk.github.io/liltkey/#research) for the CPU measurements behind this choice.
+- Read the [short model comparison](https://tangzk.github.io/liltkey/research/) for the CPU measurements behind this choice.
 
 ## Install
 

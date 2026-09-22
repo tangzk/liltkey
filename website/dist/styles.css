@@ -131,3 +131,7 @@
 .research-result h3 { margin: 0 0 10px; }
 .research-result p { margin: 0; }
 .research-links { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-top: 24px; font-size: .875rem; }
+
+.research-page .research-section { border-top: 0; padding-top: 56px; }
+.research-page h1 { font-size: clamp(2rem, 4.5vw, 3.75rem); line-height: 1.15; letter-spacing: -.035em; margin: 0 0 24px; }
+.research-page .site-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-block: 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: .875rem; }

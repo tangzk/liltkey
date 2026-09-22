@@ -18,4 +18,22 @@
     <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/zh/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://tangzk.github.io/liltkey/"/>
   </url>
+  <url>
+    <loc>https://tangzk.github.io/liltkey/research/</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tangzk.github.io/liltkey/research/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/zh/research/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tangzk.github.io/liltkey/research/"/>
+  </url>
+  <url>
+    <loc>https://tangzk.github.io/liltkey/zh/research/</loc>
+    <lastmod>2026-09-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://tangzk.github.io/liltkey/research/"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://tangzk.github.io/liltkey/zh/research/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://tangzk.github.io/liltkey/research/"/>
+  </url>
 </urlset>

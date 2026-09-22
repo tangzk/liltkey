@@ -17,7 +17,7 @@
 - 可选 SenseVoice 定稿校正：保留边说边出的流式草稿，在停顿或松键提交前，重新识别该段音频。
 - 校正失败自动回退到流式识别；取消后不提交迟到结果，全部识别仍在本机完成。
 - 校正功能**默认关闭**，需额外准备模型，保留原有快捷键与配置。参见[开启方法](docs/advanced-usage.md#流式预览与快速定稿校正)。
-- 宣传页新增[模型对比简报](https://tangzk.github.io/liltkey/zh/#research)，说明本次 CPU 测试与方案选择。
+- 宣传页新增[模型对比简报](https://tangzk.github.io/liltkey/zh/research/)，说明本次 CPU 测试与方案选择。
 
 ## 安装
 

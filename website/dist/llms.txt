@@ -23,7 +23,9 @@
 - [Theme](https://github.com/tangzk/liltkey/blob/main/themes/README.md): default theme, switching and restoring appearance
 - [Validation notes](https://github.com/tangzk/liltkey/blob/main/docs/validation.md): test results and known limitations
 
-- [Model comparison](https://tangzk.github.io/liltkey/#research): six models on 60 public FLEURS clips, measured on a local CPU; full-clip compute times are not key-release latency.
+- [Model comparison](https://tangzk.github.io/liltkey/research/): six models on 60 public FLEURS clips, measured on a local CPU; full-clip compute times are not key-release latency.
+
+- [Model comparison (Chinese)](https://tangzk.github.io/liltkey/zh/research/): the same measurements and limitations in Chinese.
 
 ## Download
 
